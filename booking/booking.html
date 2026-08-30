@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book a Study Area &middot; NU Fairview LRC Booking</title>
+  <link rel="icon" href="../images/nu-shield.svg">
+  <link rel="stylesheet" href="../shared/nu-theme.css">
+  <link rel="stylesheet" href="booking.css">
+</head>
+<body>
+
+  <!-- ============ Top bar ============ -->
+  <header class="topbar">
+    <a class="brand" href="../main_dashboard/main_dashboard.html">
+      <img src="../images/nu-shield.svg" alt="National University seal" width="30" height="36">
+      <span class="b-name">NATIONAL<br>UNIVERSITY</span>
+    </a>
+    <div class="sys-name">LRC Booking</div>
+
+    <nav>
+      <a href="../main_dashboard/main_dashboard.html">Dashboard</a>
+      <a href="booking.html" class="active">Book</a>
+    </nav>
+
+    <div class="user">
+      <img src="../images/avatar-student.svg" alt="">
+      <div>
+        <div class="u-name" id="userName">Student</div>
+        <div class="u-sub" id="userId">ID: -</div>
+      </div>
+      <a href="#" class="logout" data-logout>Sign out</a>
+    </div>
+  </header>
+
+  <!-- ============ Breadcrumb ============ -->
+  <div class="crumbs">
+    <div class="in">
+      <a href="../main_dashboard/main_dashboard.html">Study Area</a>
+      <span class="sep">&rsaquo;</span>
+      <span class="now">Date &amp; Time</span>
+      <span class="sep">&rsaquo;</span>
+      <span>Confirmation</span>
+    </div>
+  </div>
+
+  <div class="page-wrap">
+    <div class="book-split">
+
+      <!-- ============ Left column ============ -->
+      <div class="stack">
+
+        <!-- chosen study area -->
+        <div class="card">
+          <div class="card-body area-pick">
+            <img class="pick-photo" id="pickPhoto" src="../images/room-pod.svg" alt="">
+            <div class="pick-info">
+              <h2 id="pickName">Study Area</h2>
+              <p id="pickCapacity">Capacity: -</p>
+              <p id="pickLocation">Location: NU Fairview LRC</p>
+            </div>
+            <a class="btn btn-primary btn-sm" href="../main_dashboard/main_dashboard.html">Change Area</a>
+          </div>
+        </div>
+
+        <!-- calendar -->
+        <div class="card">
+          <div class="cal-head">
+            <button type="button" class="cal-nav" id="prevMonth" aria-label="Previous month">
+              &lsaquo; Previous
+            </button>
+            <h3 id="calTitle">Month Year</h3>
+            <button type="button" class="cal-nav" id="nextMonth" aria-label="Next month">
+              Next &rsaquo;
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="cal-grid cal-dow">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+              <span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="cal-grid" id="calDays"></div>
+          </div>
+        </div>
+
+        <!-- rules -->
+        <div class="card">
+          <div class="card-head"><h3>Reservation Rules</h3></div>
+          <div class="card-body">
+            <ul class="rules">
+              <li>Max Duration: 2 hours per booking</li>
+              <li>Cancellation: 1 hour notice required</li>
+              <li>Bookings are for one time slot at a time</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============ Right column ============ -->
+      <div class="stack">
+
+        <section>
+          <h2 class="slots-title" id="slotsTitle">Available Time Slots</h2>
+          <div class="slot-list" id="slotList"></div>
+
+          <div class="legend">
+            <span><i style="background:#fff;border-color:var(--nu-blue)"></i>Available</span>
+            <span><i style="background:var(--nu-blue-dark);border-color:var(--nu-blue-dark)"></i>Selected</span>
+            <span><i style="background:#E4E8EF"></i>Reserved</span>
+            <span><i style="background:#EFF1F5"></i>Unavailable</span>
+          </div>
+        </section>
+
+        <!-- summary -->
+        <div class="card summary-card">
+          <div class="card-head"><h3>Booking Summary</h3></div>
+          <div class="card-body">
+            <dl class="kv">
+              <dt>Study Area</dt><dd id="sumArea">-</dd>
+              <dt>Date</dt><dd id="sumDate">-</dd>
+              <dt>Time</dt><dd id="sumTime">Select a time slot</dd>
+              <dt>Duration</dt><dd id="sumDuration">1 Hour</dd>
+            </dl>
+
+            <div class="field purpose-field">
+              <label for="purpose">Purpose</label>
+              <select class="input" id="purpose">
+                <option>Group Project</option>
+                <option>Silent Study</option>
+                <option>Seminar Prep</option>
+                <option>Research Collab</option>
+                <option>Thesis Writing</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-foot summary-foot">
+            <button type="button" class="btn btn-navy btn-block is-disabled" id="confirmBtn">
+              Continue to Confirmation
+            </button>
+            <a class="btn btn-ghost btn-block" href="../main_dashboard/main_dashboard.html">Back</a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <p class="footnote">
+      CPSOFT30L Software Design Laboratory &middot; NU Fairview LRC Booking System
+    </p>
+  </div>
+
+  <!-- ============ Confirmation dialog ============ -->
+  <div class="veil" id="confirmVeil" hidden>
+    <div class="dialog">
+      <h3>Confirm Your Reservation</h3>
+      <p class="dialog-sub">Review the details before submitting.</p>
+
+      <dl class="kv dialog-kv">
+        <dt>Study Area</dt><dd id="dlgArea">-</dd>
+        <dt>Location</dt><dd id="dlgLocation">-</dd>
+        <dt>Date</dt><dd id="dlgDate">-</dd>
+        <dt>Time</dt><dd id="dlgTime">-</dd>
+        <dt>Purpose</dt><dd id="dlgPurpose">-</dd>
+        <dt>Status</dt><dd><span class="badge badge-warn">Pending Confirmation</span></dd>
+      </dl>
+
+      <label class="checkline agree-line">
+        <input type="checkbox" id="agree">
+        <span>I have reviewed the reservation details and agree to the applicable LRC policies.</span>
+      </label>
+      <p class="err" id="agreeErr"></p>
+
+      <div class="dialog-foot">
+        <button type="button" class="btn btn-navy grow" id="submitBtn">Confirm Reservation</button>
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Back to Time Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="../shared/nu-data.js"></script>
+  <script src="booking.js"></script>
+</body>
+</html>
