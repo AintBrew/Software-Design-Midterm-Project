@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LRC Dashboard &middot; NU Fairview LRC Booking</title>
+  <link rel="icon" href="../images/nu-shield.svg">
+  <link rel="stylesheet" href="../shared/nu-theme.css">
+  <link rel="stylesheet" href="admin_dashboard.css">
+</head>
+<body>
+
+  <div class="admin-shell">
+
+    <!-- ============ Sidebar ============ -->
+    <aside class="sidebar">
+      <a class="s-brand" href="admin_dashboard.html">
+        <img src="../images/nu-shield.svg" alt="National University seal" width="28" height="34">
+        <b>NU Fairview LRC</b>
+      </a>
+
+      <div class="s-label">Nav Links</div>
+
+      <a class="s-link active" href="admin_dashboard.html">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg></span> Dashboard
+        <span class="tag">Active</span>
+      </a>
+      <a class="s-link off" href="#" data-soon>
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span> Reservations
+        <span class="tag soon">Soon</span>
+      </a>
+      <a class="s-link off" href="#" data-soon>
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 10v10"/></svg></span> Study Areas
+        <span class="tag soon">Soon</span>
+      </a>
+      <a class="s-link off" href="#" data-soon>
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></span> Reports
+        <span class="tag soon">Soon</span>
+      </a>
+
+      <div class="s-label">Account</div>
+      <a class="s-link" href="#" data-logout>
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h9"/></svg></span> Logout
+      </a>
+    </aside>
+
+    <!-- ============ Main ============ -->
+    <main class="admin-main">
+
+      <div class="admin-bar">
+        <div class="t">
+          <h3>LRC Dashboard</h3>
+          <span id="todayLine">Current Date</span>
+        </div>
+
+        <div class="searchbox">
+          <span class="mag" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg></span>
+          <input type="search" id="search" placeholder="Search student, area, or purpose">
+        </div>
+
+        <div class="bell" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg><span class="dot" id="bellCount">0</span>
+        </div>
+
+        <div class="who">
+          <img src="../images/avatar-staff.svg" alt="">
+          <div>
+            <b id="staffName">LRC Supervisor</b>
+            <span id="staffRole">LRC Profile</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-body">
+
+        <div class="body-head">
+          <h2>Main Dashboard</h2>
+          <button type="button" class="btn btn-primary" data-soon>Manage Study Areas</button>
+        </div>
+
+        <!-- ============ Stat tiles ============ -->
+        <section class="tiles">
+          <div class="tile">
+            <div class="lbl">Today's Reservations</div>
+            <div class="val" id="statToday">0</div>
+          </div>
+          <div class="tile hl">
+            <div class="lbl">Pending Approval</div>
+            <div class="val" id="statPending">0</div>
+          </div>
+          <div class="tile">
+            <div class="lbl">Available Study Areas</div>
+            <div class="val" id="statAvailable">0</div>
+          </div>
+          <div class="tile">
+            <div class="lbl">Currently Occupied</div>
+            <div class="val" id="statOccupied">0</div>
+          </div>
+        </section>
+
+        <!-- ============ Table + side panels ============ -->
+        <div class="admin-split">
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Today's Reservations</h3>
+              <span class="right badge badge-info" id="rowCount">0 records</span>
+            </div>
+            <div class="table-scroll">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Study Area</th>
+                    <th>Student</th>
+                    <th>Purpose/Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="resBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="stack">
+
+            <div class="card">
+              <div class="card-head"><h3>Study-Area Availability</h3></div>
+              <div class="card-body">
+                <div class="avail-grid" id="availGrid"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Weekly Utilization Overview</h3></div>
+              <div class="card-body">
+                <div class="chart" id="chart"></div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <p class="footnote">
+          CPSOFT30L Software Design Laboratory &middot; NU Fairview LRC Booking System
+        </p>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="../shared/nu-data.js"></script>
+  <script src="admin_dashboard.js"></script>
+</body>
+</html>
