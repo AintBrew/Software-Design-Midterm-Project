@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard &middot; NU Fairview LRC Booking</title>
+  <link rel="icon" href="../images/nu-shield.svg">
+  <link rel="stylesheet" href="../shared/nu-theme.css">
+  <link rel="stylesheet" href="main_dashboard.css">
+</head>
+<body>
+
+  <!-- ============ Top bar ============ -->
+  <header class="topbar">
+    <a class="brand" href="main_dashboard.html">
+      <img src="../images/nu-shield.svg" alt="National University seal" width="30" height="36">
+      <span class="b-name">NATIONAL<br>UNIVERSITY</span>
+    </a>
+    <div class="sys-name">LRC Booking</div>
+
+    <nav>
+      <a href="main_dashboard.html" class="active">Dashboard</a>
+      <a href="#" data-soon>My Reservations</a>
+      <a href="#" data-soon>LRC Policies</a>
+    </nav>
+
+    <div class="user">
+      <img src="../images/avatar-student.svg" alt="">
+      <div>
+        <div class="u-name" id="userName">Student</div>
+        <div class="u-sub" id="userId">ID: -</div>
+      </div>
+      <a href="#" class="logout" data-logout>Sign out</a>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+
+    <div class="page-head">
+      <h1>Find a Study Area</h1>
+      <p>Explore available study spaces in the NU Fairview LRC and reserve your spot easily.</p>
+    </div>
+
+    <!-- ============ Filters ============ -->
+    <section class="filters" aria-label="Filter study areas">
+      <div class="f">
+        <span>Area Type</span>
+        <div class="seg" id="typeSeg">
+          <button type="button" class="on" data-type="All">All Types</button>
+          <button type="button" data-type="Individual">Individual</button>
+          <button type="button" data-type="Group">Group</button>
+          <button type="button" data-type="Collaborative">Collaborative</button>
+        </div>
+      </div>
+
+      <div class="f">
+        <span>Capacity</span>
+        <select class="input" id="capacity">
+          <option value="any">Any size</option>
+          <option value="1-2">1 - 2</option>
+          <option value="3-6">3 - 6</option>
+          <option value="7+">7 or more</option>
+        </select>
+      </div>
+
+      <div class="f">
+        <span>Date</span>
+        <input class="input" type="date" id="date">
+      </div>
+
+      <div class="f">
+        <span>Time Slot</span>
+        <select class="input" id="slot">
+          <option value="any">Any time</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="searchBtn">Search</button>
+      <button type="button" class="btn btn-ghost" id="resetBtn">Reset</button>
+    </section>
+
+    <!-- ============ Results + side rail ============ -->
+    <div class="split dash-split">
+
+      <section>
+        <p class="result-line" id="resultLine">Showing all study areas.</p>
+        <div class="area-grid" id="areaGrid"></div>
+        <p class="no-results" id="noResults" hidden>
+          No study areas match these filters. Try widening the capacity or clearing the time slot.
+        </p>
+      </section>
+
+      <aside class="stack">
+        <div class="card">
+          <div class="card-head"><h3>Upcoming Reservations</h3></div>
+          <div class="card-body" id="upcoming"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>LRC Policies</h3></div>
+          <div class="card-body">
+            <ul class="policy-mini">
+              <li>Reservations are required for all study areas.</li>
+              <li>Maximum of 3 hours per student per day.</li>
+              <li>Cancellation needs 1 hour notice.</li>
+              <li>Observe silence. No food or drinks.</li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <p class="footnote">
+      CPSOFT30L Software Design Laboratory &middot; NU Fairview LRC Booking System
+    </p>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="../shared/nu-data.js"></script>
+  <script src="main_dashboard.js"></script>
+</body>
+</html>

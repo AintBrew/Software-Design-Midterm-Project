@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account &middot; NU Fairview LRC Booking</title>
+  <link rel="icon" href="../images/nu-shield.svg">
+  <link rel="stylesheet" href="../shared/nu-theme.css">
+  <link rel="stylesheet" href="sign_up.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-shell">
+
+    <!-- ============ Left: NU Fairview brand panel ============ -->
+    <aside class="auth-brand">
+      <div class="brand-glow" aria-hidden="true"></div>
+      <img class="brand-watermark" src="../images/nu-shield.svg" alt="" aria-hidden="true">
+
+      <header class="brand-top">
+        <img src="../images/nu-shield.svg" alt="National University seal" width="48" height="58">
+        <div class="brand-word">
+          <b>NATIONAL UNIVERSITY</b>
+          <span>Fairview</span>
+        </div>
+      </header>
+
+      <div class="brand-mid">
+        <p class="eyebrow">Learning Resource Center</p>
+        <h1>Register once,<br>book all term.</h1>
+        <p class="brand-lead">
+          A student account lets you reserve individual and group study areas
+          in the NU Fairview LRC and keep track of every booking you make.
+        </p>
+
+        <ol class="steps">
+          <li><b>1</b><div><b>Create your account</b>Use your NU Fairview student e-mail.</div></li>
+          <li><b>2</b><div><b>Find a study area</b>Filter by type, capacity, date, and time slot.</div></li>
+          <li><b>3</b><div><b>Confirm your booking</b>Get the reservation details right away.</div></li>
+        </ol>
+      </div>
+
+      <footer class="brand-foot">
+        School of Engineering and Technology &middot; Computer Engineering Department
+      </footer>
+    </aside>
+
+    <!-- ============ Right: registration form ============ -->
+    <main class="auth-panel">
+      <div class="auth-card auth-card-wide">
+
+        <div class="mobile-crest">
+          <img src="../images/nu-shield.svg" alt="National University seal" width="37" height="45">
+          <span>NU Fairview LRC Booking</span>
+        </div>
+
+        <h2>Create a student account</h2>
+        <p class="auth-sub">All fields are required unless marked optional.</p>
+
+        <form id="signupForm" novalidate>
+
+          <div class="field">
+            <label for="fullName">Full name</label>
+            <input class="input" type="text" id="fullName" name="fullName"
+                   placeholder="e.g. Juan D. Dela Cruz" autocomplete="name">
+            <p class="err" id="fullNameErr"></p>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="studentNo">Student number</label>
+              <input class="input" type="text" id="studentNo" name="studentNo"
+                     placeholder="e.g. 21-04512" inputmode="numeric">
+              <p class="hint">Format: two digits, a dash, five digits.</p>
+              <p class="err" id="studentNoErr"></p>
+            </div>
+
+            <div class="field">
+              <label for="program">Program</label>
+              <select class="input" id="program" name="program">
+                <option value="">Select your program</option>
+                <option>BS Computer Engineering</option>
+                <option>BS Electronics Engineering</option>
+                <option>BS Civil Engineering</option>
+                <option>BS Computer Science</option>
+                <option>BS Information Technology</option>
+                <option>BS Architecture</option>
+                <option>Other program</option>
+              </select>
+              <p class="err" id="programErr"></p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">NU Fairview e-mail</label>
+            <input class="input" type="email" id="email" name="email"
+                   placeholder="surnamefi@students.nu-fairview.edu.ph"
+                   autocomplete="email" autocapitalize="none" spellcheck="false">
+            <p class="err" id="emailErr"></p>
+          </div>
+
+          <div class="field">
+            <label for="username">Username</label>
+            <input class="input" type="text" id="username" name="username"
+                   placeholder="Choose a username" autocomplete="username"
+                   autocapitalize="none" spellcheck="false">
+            <p class="hint">At least 4 characters. Letters, numbers, dots, and underscores.</p>
+            <p class="err" id="usernameErr"></p>
+          </div>
+
+          <div class="grid-2">
+            <div class="field">
+              <label for="password">Password</label>
+              <div class="input-wrap">
+                <input class="input has-btn" type="password" id="password" name="password"
+                       placeholder="At least 8 characters" autocomplete="new-password">
+                <button type="button" class="peek" id="peekBtn" aria-label="Show password" aria-pressed="false">Show</button>
+              </div>
+              <div class="meter" id="meter" aria-hidden="true">
+                <i></i><i></i><i></i>
+              </div>
+              <p class="meter-label" id="meterLabel">Use 8 or more characters.</p>
+              <p class="err" id="passwordErr"></p>
+            </div>
+
+            <div class="field">
+              <label for="confirm">Confirm password</label>
+              <input class="input" type="password" id="confirm" name="confirm"
+                     placeholder="Re-enter your password" autocomplete="new-password">
+              <p class="err" id="confirmErr"></p>
+            </div>
+          </div>
+
+          <div class="field terms">
+            <label class="checkline">
+              <input type="checkbox" id="agree">
+              <span>
+                I have read and agree to the
+                <a href="#" id="policyLink">LRC reservation policies</a>
+                on responsible use of study areas.
+              </span>
+            </label>
+            <p class="err" id="agreeErr"></p>
+          </div>
+
+          <p class="err form-err" id="formErr"></p>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
+            <span class="btn-label">Create Account</span>
+          </button>
+
+          <p class="alt-line">
+            Already have an account?
+            <a href="../login/login.html">Sign in instead</a>
+          </p>
+        </form>
+      </div>
+
+      <p class="footnote">
+        CPSOFT30L Software Design Laboratory &middot; NU Fairview LRC Booking System
+      </p>
+    </main>
+
+  </div>
+
+  <!-- LRC policy dialog -->
+  <div class="success-veil" id="policyVeil" hidden>
+    <div class="success-card policy-card">
+      <h3>LRC Reservation Policies</h3>
+      <ul class="policy-list">
+        <li>Reservations are subject to LRC policies and staff approval where required.</li>
+        <li>Maximum of 3 hours of booked study area time per student per day.</li>
+        <li>Students must observe the scheduled reservation period.</li>
+        <li>Cancellation requires at least 1 hour notice through the booking system.</li>
+        <li>Observe silence in individual study areas. No food or drinks inside the LRC.</li>
+        <li>Study areas must be used responsibly and left in order.</li>
+      </ul>
+      <button type="button" class="btn btn-primary btn-block" id="policyClose">Close</button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="../shared/nu-data.js"></script>
+  <script src="sign_up.js"></script>
+</body>
+</html>
