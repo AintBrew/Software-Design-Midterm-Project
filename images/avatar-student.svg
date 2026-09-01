@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Student avatar">
+  <circle cx="32" cy="32" r="32" fill="#DCE3F2"/>
+  <circle cx="32" cy="25" r="11" fill="#2E3883"/>
+  <path d="M9 60c2-13 11-19 23-19s21 6 23 19z" fill="#10306B"/>
+  <path d="M23 43l9 10 9-10 6 3-4 14H21l-4-14z" fill="#FFCE19"/>
+</svg>

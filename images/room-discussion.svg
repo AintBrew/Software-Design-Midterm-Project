@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160" role="img" aria-label="Group discussion room">
+  <rect width="320" height="160" fill="#DDE4EF"/>
+  <rect y="112" width="320" height="48" fill="#B9BDC4"/>
+  <rect x="0" y="106" width="320" height="8" fill="#9AA0A8"/>
+  <rect x="30" y="18" width="120" height="60" rx="3" fill="#F7F8FA" stroke="#C7CCD4" stroke-width="2"/>
+  <rect x="196" y="22" width="96" height="56" rx="4" fill="#2B3240"/>
+  <rect x="204" y="30" width="80" height="40" rx="2" fill="#3E4757"/>
+  <rect x="90" y="88" width="140" height="16" rx="3" fill="#8B6F47"/>
+  <rect x="96" y="104" width="5" height="18" fill="#6B7280"/>
+  <rect x="219" y="104" width="5" height="18" fill="#6B7280"/>
+  <rect x="146" y="72" width="28" height="16" rx="2" fill="#4B5563"/>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160" role="img" aria-label="Large seminar room">
+  <rect width="320" height="160" fill="#E2E5EA"/>
+  <rect y="112" width="320" height="48" fill="#B9BDC4"/>
+  <rect x="0" y="106" width="320" height="8" fill="#9AA0A8"/>
+  <rect x="30" y="18" width="120" height="60" rx="3" fill="#F7F8FA" stroke="#C7CCD4" stroke-width="2"/>
+  <rect x="196" y="22" width="96" height="56" rx="4" fill="#2B3240"/>
+  <rect x="204" y="30" width="80" height="40" rx="2" fill="#3E4757"/>
+  <rect x="2" y="92" width="78" height="16" rx="3" fill="#9C8264"/>
+  <rect x="8" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="69" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="27" y="76" width="28" height="16" rx="2" fill="#4B5563"/>
+  <rect x="81" y="92" width="78" height="16" rx="3" fill="#9C8264"/>
+  <rect x="87" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="148" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="106" y="76" width="28" height="16" rx="2" fill="#4B5563"/>
+  <rect x="161" y="92" width="78" height="16" rx="3" fill="#9C8264"/>
+  <rect x="167" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="228" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="186" y="76" width="28" height="16" rx="2" fill="#4B5563"/>
+  <rect x="240" y="92" width="78" height="16" rx="3" fill="#9C8264"/>
+  <rect x="246" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="307" y="108" width="5" height="18" fill="#6B7280"/>
+  <rect x="265" y="76" width="28" height="16" rx="2" fill="#4B5563"/>
+</svg>

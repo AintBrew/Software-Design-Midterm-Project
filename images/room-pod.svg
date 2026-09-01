@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 160" width="320" height="160" role="img" aria-label="Individual study pod">
+  <rect width="320" height="160" fill="#E9E2D2"/>
+  <rect y="112" width="320" height="48" fill="#B9BDC4"/>
+  <rect x="0" y="106" width="320" height="8" fill="#9AA0A8"/>
+  <rect x="30" y="18" width="120" height="60" rx="3" fill="#F7F8FA" stroke="#C7CCD4" stroke-width="2"/>
+  <rect x="170" y="10" width="14" height="102" fill="#C3A56A" opacity=".8"/>
+  <rect x="196" y="26" width="98" height="52" rx="3" fill="#FFFFFF" opacity=".7"/>
+  <rect x="90" y="88" width="140" height="16" rx="3" fill="#C8A15A"/>
+  <rect x="96" y="104" width="5" height="18" fill="#6B7280"/>
+  <rect x="219" y="104" width="5" height="18" fill="#6B7280"/>
+  <rect x="146" y="72" width="28" height="16" rx="2" fill="#4B5563"/>
+</svg>
