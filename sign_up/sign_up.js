@@ -153,8 +153,8 @@
 
     if (!v.studentNo) {
       fail("studentNo", "Enter your student number.");
-    } else if (!/^\d{2}-\d{5}$/.test(v.studentNo)) {
-      fail("studentNo", "Use the format 21-04512 - two digits, a dash, then five digits.");
+    } else if (!/^\d{4}-\d{6}$/.test(v.studentNo)) {
+      fail("studentNo", "Use the format 2023-123456 - four digits, a dash, then six digits.");
     }
 
     if (!v.program) {
