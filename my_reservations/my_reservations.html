@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Reservations &middot; NU Fairview LRC Booking</title>
+  <link rel="icon" href="../images/nu-shield.svg">
+  <link rel="stylesheet" href="../shared/nu-theme.css">
+  <link rel="stylesheet" href="my_reservations.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <a class="brand" href="../main_dashboard/main_dashboard.html">
+      <img src="../images/nu-shield.svg" alt="National University seal" width="30" height="36">
+      <span class="b-name">NATIONAL<br>UNIVERSITY</span>
+    </a>
+    <div class="sys-name">LRC Booking</div>
+
+    <nav>
+      <a href="../main_dashboard/main_dashboard.html">Dashboard</a>
+      <a href="my_reservations.html" class="active">My Reservations</a>
+      <a href="#" data-soon>LRC Policies</a>
+    </nav>
+
+    <div class="user">
+      <img src="../images/avatar-student.svg" alt="">
+      <div>
+        <div class="u-name" id="userName">Student</div>
+        <div class="u-sub" id="userId">ID: -</div>
+      </div>
+      <a href="#" class="logout" data-logout>Sign out</a>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <div class="page-head">
+      <h1>My Reservations</h1>
+      <p>Review upcoming bookings and your reservation history for the LRC.</p>
+    </div>
+
+    <section class="summary-row">
+      <div class="summary-card">
+        <span class="label">Upcoming</span>
+        <strong id="upcomingCount">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="label">Confirmed</span>
+        <strong id="confirmedCount">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="label">Pending</span>
+        <strong id="pendingCount">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="label">Total Bookings</span>
+        <strong id="totalCount">0</strong>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <section class="card panel">
+        <div class="card-head">
+          <h3>Upcoming Reservations</h3>
+        </div>
+        <div class="card-body">
+          <div id="upcomingList" class="reservation-list"></div>
+        </div>
+      </section>
+
+      <aside class="card panel">
+        <div class="card-head">
+          <h3>Reservation History</h3>
+        </div>
+        <div class="card-body">
+          <div id="historyList" class="reservation-list compact"></div>
+        </div>
+      </aside>
+    </div>
+
+    <p class="footnote">
+      CPSOFT30L Software Design Laboratory &middot; NU Fairview LRC Booking System
+    </p>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="../shared/nu-data.js"></script>
+  <script src="my_reservations.js"></script>
+</body>
+</html>

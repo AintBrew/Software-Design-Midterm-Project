@@ -1,0 +1,118 @@
+/* ============================================================
+   my_reservations.css - Student reservation summary page
+   ============================================================ */
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 24px;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  padding: 18px 18px 16px;
+}
+
+.summary-card .label {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-mute);
+  margin-bottom: 10px;
+}
+
+.summary-card strong {
+  color: var(--nu-blue-dark);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.panel {
+  min-height: 260px;
+}
+
+.reservation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reservation-item {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--surface-alt);
+  padding: 14px 16px;
+}
+
+.res-item-top,
+.res-item-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.res-item-top {
+  margin-bottom: 10px;
+}
+
+.res-item-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--nu-blue-deep);
+}
+
+.res-item-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin-bottom: 12px;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.res-item-meta b {
+  color: var(--ink);
+}
+
+.res-item-purpose {
+  font-size: 13px;
+  color: var(--ink-soft);
+}
+
+.res-empty {
+  padding: 22px 18px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r);
+  text-align: center;
+  color: var(--ink-mute);
+  background: var(--surface-alt);
+}
+
+.cancel-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+@media (max-width: 860px) {
+  .summary-row,
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .res-item-meta {
+    grid-template-columns: 1fr;
+  }
+}
