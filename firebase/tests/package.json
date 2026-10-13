@@ -1,0 +1,14 @@
+{
+  "name": "lrc-firestore-rules-tests",
+  "private": true,
+  "description": "Security Rules tests for the NU Fairview LRC booking system. Runs against the Firestore emulator only.",
+  "type": "module",
+  "scripts": {
+    "test": "firebase emulators:exec --only firestore --project demo-lrc-booking --config ../../firebase.json \"node --test rules.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.14.1",
+    "firebase-tools": "^14.0.0"
+  }
+}
