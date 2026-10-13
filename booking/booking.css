@@ -236,3 +236,61 @@
   .slot-row { grid-template-columns: 68px 1fr; gap: 9px; }
   .dialog-foot { flex-direction: column; }
 }
+
+/* ---------------- Unit picker ---------------- */
+
+.unit-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.unit-pick .field { margin: 0; }
+
+/* ---------------- Attendees (discussion rooms) ---------------- */
+
+.group-box {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 10px 12px 12px;
+  margin: 4px 0 0;
+}
+.group-box legend {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-soft);
+  padding: 0 4px;
+}
+.group-hint { margin: 0 0 10px; }
+.attendee-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.attendee-row {
+  display: grid;
+  grid-template-columns: 1fr 130px auto;
+  gap: 6px;
+  align-items: start;
+}
+.attendee-row .input { padding: 8px 10px; font-size: 13px; }
+.attendee-row .remove {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--danger);
+  border-radius: var(--r-sm);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.attendee-row .remove:hover { background: var(--danger-bg); }
+.group-size { margin: 10px 0 0; font-size: 12.5px; font-weight: 700; color: var(--nu-blue-dark); }
+.attendee-names { margin: 0; padding-left: 18px; }
+
+.slot-btn.past { background: #EFF1F5; border-color: transparent; color: #A2ABBC; cursor: not-allowed; }
+.slot-empty {
+  padding: 18px;
+  text-align: center;
+  color: var(--ink-mute);
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+}
+.dialog { max-width: 470px; }
+
+@media (max-width: 720px) {
+  .unit-pick { grid-template-columns: 1fr; }
+  .attendee-row { grid-template-columns: 1fr; }
+}

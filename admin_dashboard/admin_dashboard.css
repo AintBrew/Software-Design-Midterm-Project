@@ -36,13 +36,6 @@
   display: block;
 }
 
-/* sidebar links whose pages are not built yet */
-.sidebar a.s-link.off { opacity: .62; }
-.sidebar a.s-link .tag.soon {
-  background: rgba(255,255,255,.16);
-  color: rgba(255,255,255,.85);
-}
-
 /* ---------------- Reservations table ---------------- */
 
 .res-time {
@@ -148,14 +141,131 @@
   font-weight: 600;
 }
 
+/* ---------------- Views ---------------- */
+
+.sidebar nav { display: contents; }
+.sidebar a.s-link .tag { display: none; }
+.sidebar a.s-link.active .tag { display: inline-block; }
+
+.admin-bar a.bell { text-decoration: none; }
+.admin-bar .bell .dot[hidden] { display: none; }
+
+.setup-card { margin-bottom: 18px; border-color: #F0D79B; background: #FFFCF2; }
+.setup-card h3 { color: var(--nu-blue-dark); margin-bottom: 6px; }
+.setup-card p { margin: 0 0 12px; color: var(--ink-soft); font-size: 13px; }
+.setup-progress { margin-left: 12px; font-size: 12.5px; color: var(--ink-soft); }
+
+.avail-when, .chart-caption { margin: 0 0 10px; }
+.avail-cell .avail-sub { display: block; font-size: 11px; font-weight: 600; opacity: .85; }
+
+.table .res-unit { display: block; font-size: 11.5px; color: var(--ink-mute); }
+.table .res-group { display: block; font-size: 11.5px; color: var(--ink-mute); }
+
+/* ---------------- Reservations view ---------------- */
+
+.admin-filters { margin-bottom: 16px; }
+.filters .f > label > span { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
+
+/* ---------------- Study areas view ---------------- */
+
+.schedule-card { margin-bottom: 18px; }
+.schedule-table select { padding: 6px 8px; width: auto; }
+.schedule-table td { padding: 8px 14px; }
+.closed-dates { margin-top: 16px; }
+.closed-dates h4 { font-size: 13.5px; color: var(--nu-blue-dark); }
+.closed-dates .hint { margin: 2px 0 8px; }
+.closed-add { display: flex; gap: 8px; align-items: center; max-width: 360px; }
+.closed-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.closed-list li {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface-alt); border: 1px solid var(--line);
+  border-radius: 999px; padding: 4px 6px 4px 12px; font-size: 12.5px;
+}
+.closed-list button {
+  border: 0; background: transparent; color: var(--danger); font: inherit;
+  font-weight: 700; cursor: pointer; padding: 2px 6px; border-radius: 999px;
+}
+.closed-list button:hover { background: var(--danger-bg); }
+.schedule-foot { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+
+.unit-table td { padding: 8px 14px; }
+.unit-table .acts { flex-wrap: wrap; }
+.unit-id { font-family: Consolas, "Courier New", monospace; font-size: 11.5px; color: var(--ink-mute); }
+.removed-units { padding: 0 16px 14px; font-size: 12.5px; color: var(--ink-soft); }
+.removed-units summary { cursor: pointer; font-weight: 700; color: var(--nu-blue-dark); padding: 6px 0; }
+.removed-units ul { margin: 6px 0 0; padding-left: 18px; }
+
+/* ---------------- Reports view ---------------- */
+
+.report-period { width: auto; margin-left: auto; }
+.report-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 18px;
+  align-items: start;
+  margin: 18px 0;
+}
+.report-note { padding: 0 16px 14px; margin: 8px 0 0; }
+.chart-wide .chart-plot { grid-template-columns: repeat(var(--cols, 12), 1fr); }
+.chart-wide .chart-day { font-size: 9.5px; }
+.audit-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.audit-list li:not(.loading) {
+  border-left: 3px solid var(--line);
+  padding: 3px 0 3px 10px;
+  font-size: 12.5px;
+  color: var(--ink);
+}
+.audit-list li[data-kind="reservation"] { border-left-color: var(--nu-blue); }
+.audit-list li[data-kind="resource"] { border-left-color: var(--nu-gold-dark); }
+.audit-list li[data-kind="schedule"] { border-left-color: var(--ok); }
+.audit-list .who-when { display: block; font-size: 11.5px; color: var(--ink-mute); }
+
+/* ---------------- Dialogs ---------------- */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(10, 28, 64, .55);
+  backdrop-filter: blur(3px);
+  overflow-y: auto;
+}
+.dialog {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 24px 24px 20px;
+}
+.dialog h3 { font-size: 19px; color: var(--nu-blue-dark); }
+.dialog-sub { margin: 5px 0 16px; font-size: 13px; color: var(--ink-soft); }
+.dialog-kv {
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.dialog-kv ul { margin: 0; padding-left: 18px; }
+.dialog-foot { display: flex; gap: 9px; margin-top: 16px; flex-wrap: wrap; }
+.hint-inline { font-weight: 500; color: var(--ink-mute); }
+.remove-list { margin: 0 0 6px; padding-left: 18px; font-size: 13px; color: var(--ink-soft); }
+
 /* ---------------- Responsive ---------------- */
 
 @media (max-width: 1100px) {
-  .admin-split { grid-template-columns: 1fr; }
+  .admin-split, .report-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {
   .body-head { flex-wrap: wrap; }
   .body-head .btn { margin-left: 0; width: 100%; }
+  .report-period { margin-left: 0; width: 100%; }
   .avail-grid { grid-template-columns: 1fr; }
+  .admin-body { padding: 16px 14px 40px; }
+  .dialog-foot { flex-direction: column; }
 }
