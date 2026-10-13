@@ -39,6 +39,8 @@
       <p>Review upcoming bookings and your reservation history for the LRC.</p>
     </div>
 
+    <div class="banner banner-bad" id="loadErr" role="alert" hidden></div>
+
     <section class="summary-row">
       <div class="summary-card">
         <span class="label">Upcoming</span>
@@ -64,7 +66,7 @@
           <h3>Upcoming Reservations</h3>
         </div>
         <div class="card-body">
-          <div id="upcomingList" class="reservation-list"></div>
+          <div id="upcomingList" class="reservation-list" aria-live="polite"><p class="loading">Loading your reservations...</p></div>
         </div>
       </section>
 
@@ -73,7 +75,7 @@
           <h3>Reservation History</h3>
         </div>
         <div class="card-body">
-          <div id="historyList" class="reservation-list compact"></div>
+          <div id="historyList" class="reservation-list compact"><p class="loading">Loading...</p></div>
         </div>
       </aside>
     </div>
@@ -86,6 +88,6 @@
   <div id="toast"></div>
 
   <script src="../shared/nu-data.js"></script>
-  <script src="my_reservations.js"></script>
+  <script type="module" src="my_reservations.js"></script>
 </body>
 </html>
