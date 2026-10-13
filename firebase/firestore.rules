@@ -1,0 +1,451 @@
+rules_version = '2';
+
+// ============================================================
+// NU Fairview LRC Study Area Online Booking System
+// Cloud Firestore Security Rules
+//
+// The data model is documented in firebase/README.md.
+//
+// - Students read/update only their own profile and reservations.
+// - Staff/admins (users/{uid}.role == "staff" | "admin") manage
+//   reservations, resources, and the LRC schedule. Roles are only
+//   granted from the Firebase console, never by the browser.
+// - Double booking is impossible: every booked hour owns a
+//   slotLocks/{resourceId}_{date}_{hour} document, which can only
+//   be created when it does not already exist.
+// - Every staff change to a reservation, resource, or schedule
+//   must be written together with an auditLogs entry.
+// ============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/users/$(uid())).data;
+    }
+
+    function hasProfile() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(uid()));
+    }
+
+    function isStaff() {
+      return hasProfile() && profile().role in ['staff', 'admin'];
+    }
+
+    function isStudent() {
+      return hasProfile() && profile().role == 'student';
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function changed() {
+      return incoming().diff(resource.data).affectedKeys();
+    }
+
+    function isNonEmptyString(value, max) {
+      return value is string && value.size() > 0 && value.size() <= max;
+    }
+
+    function studentNoValid(value) {
+      return value is string && value.matches('^[0-9]{4}-[0-9]{6}$');
+    }
+
+    // The staff change in this request is paired with a new audit
+    // entry written by the same user about the same document.
+    function audited(targetId) {
+      let auditId = incoming().lastAuditId;
+      let auditPath = /databases/$(database)/documents/auditLogs/$(auditId);
+      return auditId is string
+        && (resource == null || resource.data.get('lastAuditId', '') != auditId)
+        && existsAfter(auditPath)
+        && getAfter(auditPath).data.actorUid == uid()
+        && getAfter(auditPath).data.targetId == targetId;
+    }
+
+    function lockPath(resourceId, date, hour) {
+      return /databases/$(database)/documents/slotLocks/$(resourceId + '_' + date + '_' + string(hour));
+    }
+
+    // ---------- user profiles ----------
+
+    match /users/{userId} {
+      allow get: if signedIn() && (userId == uid() || isStaff());
+      allow list: if isStaff();
+
+      // Students register themselves. Staff/admin profiles are created
+      // in the Firebase console (see firebase/README.md).
+      allow create: if signedIn()
+        && userId == uid()
+        && incoming().keys().hasOnly(['role', 'name', 'studentNo', 'program', 'email',
+                                      'username', 'createdAt', 'updatedAt'])
+        && incoming().keys().hasAll(['role', 'name', 'studentNo', 'program', 'email',
+                                     'createdAt', 'updatedAt'])
+        && incoming().role == 'student'
+        && isNonEmptyString(incoming().name, 100) && incoming().name.size() >= 3
+        && studentNoValid(incoming().studentNo)
+        && isNonEmptyString(incoming().program, 100)
+        && incoming().email == request.auth.token.email
+        && incoming().email.lower().matches('.*@([a-z0-9-]+[.])*nu-fairview[.]edu[.]ph$')
+        && (!('username' in incoming())
+            || incoming().username.matches('^[A-Za-z0-9._]{4,30}$'))
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        // the student number is claimed in the same write
+        && getAfter(/databases/$(database)/documents/studentNumbers/$(incoming().studentNo)).data.uid == uid();
+
+      // Students may only edit their display details.
+      allow update: if signedIn()
+        && userId == uid()
+        && changed().hasOnly(['name', 'program', 'username', 'updatedAt'])
+        && isNonEmptyString(incoming().name, 100) && incoming().name.size() >= 3
+        && isNonEmptyString(incoming().program, 100)
+        && (!('username' in incoming())
+            || incoming().username.matches('^[A-Za-z0-9._]{4,30}$'))
+        && incoming().updatedAt == request.time;
+
+      allow delete: if false;
+    }
+
+    // One document per registered student number keeps them unique.
+    // Reading one only reveals whether the number is registered.
+    match /studentNumbers/{studentNo} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && studentNoValid(studentNo)
+        && incoming().keys().hasOnly(['uid'])
+        && incoming().uid == uid()
+        && getAfter(/databases/$(database)/documents/users/$(uid())).data.studentNo == studentNo;
+      allow update, delete: if false;
+    }
+
+    // ---------- facilities and reservable units ----------
+
+    match /facilities/{facilityId} {
+      allow read: if signedIn();
+      allow create, update: if isStaff()
+        && incoming().keys().hasOnly(['name', 'alias', 'type', 'unitPrefix', 'capacityPerUnit',
+                                      'description', 'image', 'order', 'updatedAt'])
+        && isNonEmptyString(incoming().name, 80)
+        && incoming().type in ['discussion', 'silent', 'computer']
+        && isNonEmptyString(incoming().unitPrefix, 40)
+        && incoming().capacityPerUnit is int
+        && incoming().capacityPerUnit >= 1 && incoming().capacityPerUnit <= 50
+        && incoming().updatedAt == request.time
+        // unit naming cannot change once units exist under it
+        && (resource == null
+            || (incoming().unitPrefix == resource.data.unitPrefix
+                && incoming().capacityPerUnit == resource.data.capacityPerUnit
+                && incoming().type == resource.data.type));
+      allow delete: if false;
+    }
+
+    match /resources/{resourceId} {
+      allow read: if signedIn();
+
+      allow create: if isStaff()
+        && incoming().keys().hasOnly(['facilityId', 'facilityName', 'type', 'number', 'label',
+                                      'capacity', 'status', 'statusNote', 'createdAt',
+                                      'createdBy', 'updatedAt', 'updatedBy', 'removedAt',
+                                      'lastAuditId'])
+        && validNewResource(get(/databases/$(database)/documents/facilities/$(incoming().facilityId)).data)
+        && getAfter(/databases/$(database)/documents/resourceLabels/$(incoming().facilityId + '_' + string(incoming().number))).data.resourceId == resourceId
+        && audited(resourceId);
+
+      allow update: if isStaff()
+        && changed().hasOnly(['status', 'statusNote', 'updatedAt', 'updatedBy', 'removedAt',
+                              'lastAuditId'])
+        && resource.data.status != 'removed'
+        && incoming().status in ['active', 'maintenance', 'removed']
+        && incoming().updatedAt == request.time
+        && incoming().updatedBy == uid()
+        && (incoming().status != 'removed'
+            || (incoming().removedAt == request.time
+                && !existsAfter(/databases/$(database)/documents/resourceLabels/$(resource.data.facilityId + '_' + string(resource.data.number)))))
+        && audited(resourceId);
+
+      // Removed units stay for reservation history.
+      allow delete: if false;
+
+      function validNewResource(facility) {
+        return incoming().number is int
+          && incoming().number >= 1 && incoming().number <= 999
+          && incoming().label == facility.unitPrefix + ' ' + string(incoming().number)
+          && incoming().facilityName == facility.name
+          && incoming().type == facility.type
+          && incoming().capacity == facility.capacityPerUnit
+          && incoming().status in ['active', 'maintenance']
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time
+          && incoming().createdBy == uid()
+          && incoming().updatedBy == uid()
+          && incoming().removedAt == null;
+      }
+    }
+
+    // {facilityId}_{number} exists while an active or maintenance unit
+    // uses that label, so labels stay unique within a facility.
+    match /resourceLabels/{labelId} {
+      allow read: if isStaff();
+      allow create: if isStaff()
+        && incoming().keys().hasOnly(['resourceId'])
+        && labelId == getAfter(/databases/$(database)/documents/resources/$(incoming().resourceId)).data.facilityId
+                      + '_' + string(getAfter(/databases/$(database)/documents/resources/$(incoming().resourceId)).data.number);
+      allow update: if false;
+      allow delete: if isStaff()
+        && getAfter(/databases/$(database)/documents/resources/$(resource.data.resourceId)).data.status == 'removed';
+    }
+
+    // ---------- LRC operating schedule ----------
+
+    match /config/{configId} {
+      allow read: if signedIn();
+      allow create, update: if isStaff()
+        && configId == 'schedule'
+        && incoming().keys().hasOnly(['timezone', 'utcOffsetHours', 'days', 'closedDates',
+                                      'updatedAt', 'updatedBy', 'lastAuditId'])
+        && incoming().timezone == 'Asia/Manila'
+        && incoming().utcOffsetHours == 8
+        && incoming().days.keys().hasOnly(['1', '2', '3', '4', '5', '6', '7'])
+        && incoming().days.keys().hasAll(['1', '2', '3', '4', '5', '6', '7'])
+        && validDay(incoming().days['1']) && validDay(incoming().days['2'])
+        && validDay(incoming().days['3']) && validDay(incoming().days['4'])
+        && validDay(incoming().days['5']) && validDay(incoming().days['6'])
+        && validDay(incoming().days['7'])
+        && incoming().closedDates is list
+        && incoming().closedDates.size() <= 366
+        && incoming().updatedAt == request.time
+        && incoming().updatedBy == uid()
+        && audited('schedule');
+      allow delete: if false;
+
+      function validDay(day) {
+        return day.keys().hasOnly(['open', 'openHour', 'closeHour'])
+          && day.open is bool
+          && day.openHour is int && day.closeHour is int
+          && day.openHour >= 0 && day.closeHour <= 24
+          && day.openHour < day.closeHour;
+      }
+    }
+
+    // ---------- reservations ----------
+
+    match /reservations/{reservationId} {
+      // Queries must filter on userId == own uid unless staff.
+      allow read: if signedIn() && (resource.data.userId == uid() || isStaff());
+
+      allow create: if signedIn() && validReservation(request.resource.data);
+
+      // Students may cancel their own pending/confirmed booking up to
+      // one hour before it starts.
+      allow update: if signedIn()
+        && resource.data.userId == uid()
+        && resource.data.status in ['pending', 'confirmed']
+        && incoming().status == 'cancelled'
+        && changed().hasOnly(['status', 'updatedAt', 'cancelledAt', 'cancelledBy'])
+        && incoming().updatedAt == request.time
+        && incoming().cancelledAt == request.time
+        && incoming().cancelledBy == uid()
+        && request.time + duration.value(1, 'h') <= resource.data.start
+        && locksReleased();
+
+      // Staff decisions: approve, reject, complete, or cancel.
+      allow update: if isStaff()
+        && changed().hasOnly(['status', 'updatedAt', 'decidedBy', 'decidedByName', 'decidedAt',
+                              'cancelledAt', 'cancelledBy', 'staffNote', 'lastAuditId'])
+        && validTransition(resource.data.status, incoming().status)
+        && incoming().updatedAt == request.time
+        && incoming().decidedAt == request.time
+        && incoming().decidedBy == uid()
+        && (incoming().status == 'confirmed' || locksReleased())
+        && audited(reservationId);
+
+      allow delete: if false;
+
+      function validTransition(from, to) {
+        return (from == 'pending' && to in ['confirmed', 'rejected', 'cancelled'])
+          || (from == 'confirmed' && to in ['completed', 'cancelled']);
+      }
+
+      // Values are passed in as arguments so each document is read once;
+      // rules stop evaluating after 1000 expressions per request.
+      function validReservation(d) {
+        let me = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+        return me.role == 'student'
+          && d.keys().hasOnly(['userId', 'studentName', 'studentNo', 'resourceId',
+                               'resourceLabel', 'facilityId', 'facilityName',
+                               'facilityType', 'capacity', 'location', 'date',
+                               'startHour', 'endHour', 'start', 'end', 'purpose',
+                               'attendees', 'groupSize', 'status', 'createdAt',
+                               'updatedAt'])
+          && d.userId == request.auth.uid
+          && d.studentName == me.name
+          && d.studentNo == me.studentNo
+          && d.status == 'pending'
+          && d.createdAt == request.time
+          && d.updatedAt == request.time
+          && d.location == 'NU Fairview LRC'
+          && d.purpose is string && d.purpose.size() > 0 && d.purpose.size() <= 60
+          && matchesResource(d, get(/databases/$(database)/documents/resources/$(d.resourceId)).data)
+          && validTime(d)
+          && withinSchedule(d, get(/databases/$(database)/documents/config/schedule).data)
+          && validGroup(d, d.attendees)
+          && locksHeld(d);
+      }
+
+      function matchesResource(d, res) {
+        return res.status == 'active'
+          && d.resourceLabel == res.label
+          && d.facilityId == res.facilityId
+          && d.facilityName == res.facilityName
+          && d.facilityType == res.type
+          && d.capacity == res.capacity;
+      }
+
+      // date is "YYYY-MM-DD" in NU Fairview time (UTC+8, no DST);
+      // start/end must be the matching instants.
+      function dayStart(date) {
+        let p = date.split('-');
+        return timestamp.date(int(p[0]), int(p[1]), int(p[2]));
+      }
+
+      function validTime(d) {
+        let midnight = dayStart(d.date) - duration.value(8, 'h');
+        return d.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && d.startHour is int && d.endHour is int
+          && d.startHour >= 0 && d.endHour <= 24
+          && d.endHour - d.startHour >= 1
+          && d.endHour - d.startHour <= 2
+          && d.start == midnight + duration.value(d.startHour, 'h')
+          && d.end == midnight + duration.value(d.endHour, 'h')
+          && d.start > request.time;
+      }
+
+      function withinSchedule(d, schedule) {
+        let day = schedule.days[string(dayStart(d.date).dayOfWeek())];
+        return day.open == true
+          && d.startHour >= day.openHour
+          && d.endHour <= day.closeHour
+          && !(d.date in schedule.closedDates);
+      }
+
+      function validAttendee(a) {
+        return a.keys().hasOnly(['name', 'studentNo'])
+          && a.name is string && a.name.size() > 0 && a.name.size() <= 100
+          && a.studentNo is string && a.studentNo.matches('^[0-9]{4}-[0-9]{6}$');
+      }
+
+      // attendees exclude the booking student, so the group is size + 1
+      function validGroup(d, a) {
+        return a is list
+          && a.size() <= 7
+          && d.groupSize == a.size() + 1
+          && d.groupSize <= d.capacity
+          && (a.size() < 1 || validAttendee(a[0]))
+          && (a.size() < 2 || validAttendee(a[1]))
+          && (a.size() < 3 || validAttendee(a[2]))
+          && (a.size() < 4 || validAttendee(a[3]))
+          && (a.size() < 5 || validAttendee(a[4]))
+          && (a.size() < 6 || validAttendee(a[5]))
+          && (a.size() < 7 || validAttendee(a[6]));
+      }
+
+      function holds(d, hour) {
+        let path = lockPath(d.resourceId, d.date, hour);
+        return getAfter(path).data.reservationId == reservationId;
+      }
+
+      function locksHeld(d) {
+        return holds(d, d.startHour)
+          && (d.endHour - d.startHour == 1 || holds(d, d.startHour + 1));
+      }
+
+      function locksReleased() {
+        let r = resource.data;
+        return !existsAfter(lockPath(r.resourceId, r.date, r.startHour))
+          && (r.endHour - r.startHour == 1 || !existsAfter(lockPath(r.resourceId, r.date, r.startHour + 1)));
+      }
+    }
+
+    // One document per booked resource-hour. Holds no personal data,
+    // so any signed-in user can read it to see availability.
+    match /slotLocks/{lockId} {
+      allow read: if signedIn();
+
+      // Only creatable (never overwritten) alongside its pending reservation.
+      allow create: if signedIn()
+        && incoming().keys().hasOnly(['resourceId', 'date', 'hour', 'reservationId'])
+        && incoming().hour is int
+        && lockId == incoming().resourceId + '_' + incoming().date + '_' + string(incoming().hour)
+        && lockMatches(getAfter(/databases/$(database)/documents/reservations/$(incoming().reservationId)).data);
+
+      allow update: if false;
+
+      // Released only when its reservation no longer blocks the slot.
+      allow delete: if signedIn()
+        && releasable(getAfter(/databases/$(database)/documents/reservations/$(resource.data.reservationId)).data);
+
+      function lockMatches(r) {
+        return r.userId == uid()
+          && r.status == 'pending'
+          && r.resourceId == incoming().resourceId
+          && r.date == incoming().date
+          && incoming().hour >= r.startHour
+          && incoming().hour < r.endHour;
+      }
+
+      function releasable(r) {
+        return r.status in ['cancelled', 'rejected', 'completed']
+          && (r.userId == uid() || isStaff());
+      }
+    }
+
+    // ---------- in-app notifications ----------
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && resource.data.userId == uid();
+      allow create: if signedIn()
+        && (incoming().userId == uid() || isStaff())
+        && incoming().keys().hasOnly(['userId', 'message', 'reservationId', 'kind', 'read',
+                                      'createdAt'])
+        && isNonEmptyString(incoming().message, 300)
+        && incoming().kind in ['submitted', 'confirmed', 'rejected', 'cancelled', 'completed']
+        && incoming().read == false
+        && incoming().createdAt == request.time;
+      allow update: if signedIn()
+        && resource.data.userId == uid()
+        && changed().hasOnly(['read'])
+        && incoming().read == true;
+      allow delete: if false;
+    }
+
+    // ---------- audit trail (staff only, append-only) ----------
+
+    match /auditLogs/{auditId} {
+      allow read: if isStaff();
+      allow create: if isStaff()
+        && incoming().keys().hasOnly(['action', 'actorUid', 'actorName', 'targetType',
+                                      'targetId', 'summary', 'details', 'createdAt'])
+        && incoming().actorUid == uid()
+        && incoming().actorName == profile().name
+        && incoming().targetType in ['reservation', 'resource', 'schedule', 'facility']
+        && isNonEmptyString(incoming().targetId, 200)
+        && isNonEmptyString(incoming().action, 60)
+        && isNonEmptyString(incoming().summary, 300)
+        && incoming().createdAt == request.time;
+      allow update, delete: if false;
+    }
+  }
+}
