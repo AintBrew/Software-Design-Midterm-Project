@@ -93,17 +93,18 @@
         <form id="loginForm" novalidate>
 
           <div class="field">
-            <label for="username">Username</label>
+            <label for="email">NU Fairview e-mail</label>
             <div class="input-wrap">
               <span class="in-ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="8" r="3.6"/><path d="M5 20c.9-4 3.6-6 7-6s6.1 2 7 6"/>
                 </svg>
               </span>
-              <input class="input has-ico" type="text" id="username" name="username"
-                     placeholder="e.g. user" autocomplete="username" autocapitalize="none" spellcheck="false">
+              <input class="input has-ico" type="email" id="email" name="email"
+                     placeholder="surnamefi@students.nu-fairview.edu.ph" autocomplete="username"
+                     autocapitalize="none" spellcheck="false" aria-describedby="emailErr">
             </div>
-            <p class="err" id="usernameErr"></p>
+            <p class="err" id="emailErr" role="alert"></p>
           </div>
 
           <div class="field">
@@ -119,10 +120,10 @@
                 </svg>
               </span>
               <input class="input has-ico has-btn" type="password" id="password" name="password"
-                     placeholder="Enter your password" autocomplete="current-password">
+                     placeholder="Enter your password" autocomplete="current-password" aria-describedby="passwordErr">
               <button type="button" class="peek" id="peekBtn" aria-label="Show password" aria-pressed="false">Show</button>
             </div>
-            <p class="err" id="passwordErr"></p>
+            <p class="err" id="passwordErr" role="alert"></p>
           </div>
 
           <div class="form-row">
@@ -132,7 +133,7 @@
             </label>
           </div>
 
-          <p class="err form-err" id="formErr"></p>
+          <p class="err form-err" id="formErr" role="alert"></p>
 
           <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
             <span class="btn-label">Sign In</span>
@@ -172,6 +173,6 @@
   <div id="toast"></div>
 
   <script src="../shared/nu-data.js"></script>
-  <script src="login.js"></script>
+  <script type="module" src="login.js"></script>
 </body>
 </html>
