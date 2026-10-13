@@ -19,29 +19,31 @@
         <b>NU Fairview LRC</b>
       </a>
 
-      <div class="s-label">Nav Links</div>
+      <nav aria-label="Staff sections">
+        <div class="s-label">Nav Links</div>
 
-      <a class="s-link active" href="admin_dashboard.html">
-        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg></span> Dashboard
-        <span class="tag">Active</span>
-      </a>
-      <a class="s-link off" href="#" data-soon>
-        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span> Reservations
-        <span class="tag soon">Soon</span>
-      </a>
-      <a class="s-link off" href="#" data-soon>
-        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 10v10"/></svg></span> Study Areas
-        <span class="tag soon">Soon</span>
-      </a>
-      <a class="s-link off" href="#" data-soon>
-        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></span> Reports
-        <span class="tag soon">Soon</span>
-      </a>
+        <a class="s-link active" href="#dashboard" data-view="dashboard" aria-current="page">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/></svg></span> Dashboard
+          <span class="tag">Active</span>
+        </a>
+        <a class="s-link" href="#reservations" data-view="reservations">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span> Reservations
+          <span class="tag">Active</span>
+        </a>
+        <a class="s-link" href="#study-areas" data-view="study-areas">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M10 10v10"/></svg></span> Study Areas
+          <span class="tag">Active</span>
+        </a>
+        <a class="s-link" href="#reports" data-view="reports">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></span> Reports
+          <span class="tag">Active</span>
+        </a>
 
-      <div class="s-label">Account</div>
-      <a class="s-link" href="#" data-logout>
-        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h9"/></svg></span> Logout
-      </a>
+        <div class="s-label">Account</div>
+        <a class="s-link" href="#" data-logout>
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4M6 12h9"/></svg></span> Logout
+        </a>
+      </nav>
     </aside>
 
     <!-- ============ Main ============ -->
@@ -55,17 +57,18 @@
 
         <div class="searchbox">
           <span class="mag" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.6-3.6"/></svg></span>
+          <label class="sr-only" for="search">Search reservations</label>
           <input type="search" id="search" placeholder="Search student, area, or purpose">
         </div>
 
-        <div class="bell" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg><span class="dot" id="bellCount">0</span>
-        </div>
+        <a class="bell" href="#reservations" id="bellLink" aria-label="Pending reservations">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 6-2 7-2 7h16s-2-1-2-7"/><path d="M10.3 20a2 2 0 0 0 3.4 0"/></svg><span class="dot" id="bellCount">0</span>
+        </a>
 
         <div class="who">
           <img src="../images/avatar-staff.svg" alt="">
           <div>
-            <b id="staffName">LRC Supervisor</b>
+            <b id="staffName">LRC Staff</b>
             <span id="staffRole">LRC Profile</span>
           </div>
         </div>
@@ -73,75 +76,261 @@
 
       <div class="admin-body">
 
-        <div class="body-head">
-          <h2>Main Dashboard</h2>
-          <button type="button" class="btn btn-primary" data-soon>Manage Study Areas</button>
-        </div>
+        <div class="banner banner-bad" id="loadErr" role="alert" hidden></div>
 
-        <!-- ============ Stat tiles ============ -->
-        <section class="tiles">
-          <div class="tile">
-            <div class="lbl">Today's Reservations</div>
-            <div class="val" id="statToday">0</div>
-          </div>
-          <div class="tile hl">
-            <div class="lbl">Pending Approval</div>
-            <div class="val" id="statPending">0</div>
-          </div>
-          <div class="tile">
-            <div class="lbl">Available Study Areas</div>
-            <div class="val" id="statAvailable">0</div>
-          </div>
-          <div class="tile">
-            <div class="lbl">Currently Occupied</div>
-            <div class="val" id="statOccupied">0</div>
+        <!-- shown until the facilities, units, and schedule exist -->
+        <section class="card setup-card" id="setupCard" hidden>
+          <div class="card-body">
+            <h3>Set up the LRC inventory</h3>
+            <p>
+              Firestore has no study areas yet. This creates the three facilities, the 28 initial
+              units (Discussion Room 1-4, Seat number 1-10, Computer number 1-14), and the operating
+              hours (Mon-Fri 7:00 AM-7:00 PM, Sat 8:00 AM-4:00 PM, Sun closed). Existing records are kept.
+            </p>
+            <button type="button" class="btn btn-primary" id="setupBtn">Initialize LRC inventory</button>
+            <span class="setup-progress" id="setupProgress" aria-live="polite"></span>
           </div>
         </section>
 
-        <!-- ============ Table + side panels ============ -->
-        <div class="admin-split">
+        <!-- ================= Dashboard view ================= -->
+        <section class="view" id="view-dashboard" aria-labelledby="dashTitle">
+
+          <div class="body-head">
+            <h2 id="dashTitle">Main Dashboard</h2>
+            <a class="btn btn-primary" href="#study-areas">Manage Study Areas</a>
+          </div>
+
+          <section class="tiles" aria-label="Today at a glance">
+            <div class="tile">
+              <div class="lbl">Today's Reservations</div>
+              <div class="val" id="statToday">-</div>
+            </div>
+            <div class="tile hl">
+              <div class="lbl">Pending Approval</div>
+              <div class="val" id="statPending">-</div>
+            </div>
+            <div class="tile">
+              <div class="lbl">Available Units Now</div>
+              <div class="val" id="statAvailable">-</div>
+            </div>
+            <div class="tile">
+              <div class="lbl">Currently Occupied</div>
+              <div class="val" id="statOccupied">-</div>
+            </div>
+          </section>
+
+          <div class="admin-split">
+
+            <div class="card">
+              <div class="card-head">
+                <h3>Today's Reservations</h3>
+                <span class="right badge badge-info" id="rowCount">0 records</span>
+              </div>
+              <div class="table-scroll">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Time</th>
+                      <th scope="col">Study Area</th>
+                      <th scope="col">Student</th>
+                      <th scope="col">Purpose/Group</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="resBody">
+                    <tr><td class="empty" colspan="6"><span class="loading">Loading reservations...</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="stack">
+
+              <div class="card">
+                <div class="card-head"><h3>Study-Area Availability</h3></div>
+                <div class="card-body">
+                  <p class="hint avail-when" id="availWhen"></p>
+                  <div class="avail-grid" id="availGrid"><p class="loading">Loading...</p></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Weekly Utilization Overview</h3></div>
+                <div class="card-body">
+                  <p class="hint chart-caption" id="chartCaption"></p>
+                  <div class="chart" id="chart" role="img" aria-label="Bookings per day"></div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================= Reservations view ================= -->
+        <section class="view" id="view-reservations" aria-labelledby="resTitle" hidden>
+          <div class="body-head">
+            <h2 id="resTitle">Reservations</h2>
+          </div>
+
+          <section class="filters admin-filters" aria-label="Filter reservations">
+            <div class="f">
+              <label for="fromDate"><span>From</span></label>
+              <input class="input" type="date" id="fromDate">
+            </div>
+            <div class="f">
+              <label for="toDate"><span>To</span></label>
+              <input class="input" type="date" id="toDate">
+            </div>
+            <div class="f">
+              <label for="statusFilter"><span>Status</span></label>
+              <select class="input" id="statusFilter">
+                <option value="all">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="f">
+              <label for="facilityFilter"><span>Study area</span></label>
+              <select class="input" id="facilityFilter">
+                <option value="all">All study areas</option>
+              </select>
+            </div>
+          </section>
 
           <div class="card">
             <div class="card-head">
-              <h3>Today's Reservations</h3>
-              <span class="right badge badge-info" id="rowCount">0 records</span>
+              <h3 id="rangeTitle">Reservations</h3>
+              <span class="right badge badge-info" id="allCount">0 records</span>
             </div>
             <div class="table-scroll">
               <table class="table">
                 <thead>
                   <tr>
-                    <th>Time</th>
-                    <th>Study Area</th>
-                    <th>Student</th>
-                    <th>Purpose/Type</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Study Area</th>
+                    <th scope="col">Student</th>
+                    <th scope="col">Purpose/Group</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="resBody"></tbody>
+                <tbody id="allBody">
+                  <tr><td class="empty" colspan="7"><span class="loading">Loading reservations...</span></td></tr>
+                </tbody>
               </table>
             </div>
           </div>
+        </section>
 
-          <div class="stack">
-
-            <div class="card">
-              <div class="card-head"><h3>Study-Area Availability</h3></div>
-              <div class="card-body">
-                <div class="avail-grid" id="availGrid"></div>
-              </div>
-            </div>
-
-            <div class="card">
-              <div class="card-head"><h3>Weekly Utilization Overview</h3></div>
-              <div class="card-body">
-                <div class="chart" id="chart"></div>
-              </div>
-            </div>
-
+        <!-- ================= Study areas view ================= -->
+        <section class="view" id="view-study-areas" aria-labelledby="areasTitle" hidden>
+          <div class="body-head">
+            <h2 id="areasTitle">Study Areas &amp; Schedule</h2>
           </div>
 
-        </div>
+          <div class="card schedule-card">
+            <div class="card-head">
+              <h3>LRC Operating Hours</h3>
+              <span class="right hint">NU Fairview time (UTC+8)</span>
+            </div>
+            <div class="card-body">
+              <div class="table-scroll">
+                <table class="table schedule-table">
+                  <thead>
+                    <tr><th scope="col">Day</th><th scope="col">Open</th><th scope="col">Opens</th><th scope="col">Closes</th></tr>
+                  </thead>
+                  <tbody id="scheduleBody">
+                    <tr><td class="empty" colspan="4"><span class="loading">Loading schedule...</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="closed-dates">
+                <h4>Closure dates</h4>
+                <p class="hint">The LRC is closed all day on these dates (holidays, events).</p>
+                <div class="closed-add">
+                  <label class="sr-only" for="closedDateInput">Closure date</label>
+                  <input class="input" type="date" id="closedDateInput">
+                  <button type="button" class="btn btn-ghost btn-sm" id="addClosedDate">Add date</button>
+                </div>
+                <ul class="closed-list" id="closedList"></ul>
+              </div>
+
+              <p class="err" id="scheduleErr" role="alert"></p>
+              <div class="schedule-foot">
+                <button type="button" class="btn btn-primary" id="saveSchedule">Save operating hours</button>
+                <span class="hint" id="scheduleMeta"></span>
+              </div>
+            </div>
+          </div>
+
+          <div id="facilityManage" class="stack">
+            <p class="loading">Loading study areas...</p>
+          </div>
+        </section>
+
+        <!-- ================= Reports view ================= -->
+        <section class="view" id="view-reports" aria-labelledby="reportsTitle" hidden>
+          <div class="body-head">
+            <h2 id="reportsTitle">Utilization Reports</h2>
+            <label class="sr-only" for="reportPeriod">Reporting period</label>
+            <select class="input report-period" id="reportPeriod">
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="month">This month</option>
+            </select>
+          </div>
+
+          <p class="banner banner-info" id="reportLabel">Loading report...</p>
+
+          <section class="tiles" aria-label="Report totals">
+            <div class="tile"><div class="lbl">Total Bookings</div><div class="val" id="rpTotal">-</div></div>
+            <div class="tile"><div class="lbl">Confirmed / Completed</div><div class="val" id="rpDone">-</div></div>
+            <div class="tile"><div class="lbl">Cancelled / Rejected</div><div class="val" id="rpLost">-</div></div>
+            <div class="tile"><div class="lbl">Occupancy Rate</div><div class="val" id="rpRate">-</div></div>
+          </section>
+
+          <div class="report-grid">
+            <div class="card">
+              <div class="card-head"><h3>Occupancy by Study Area</h3></div>
+              <div class="table-scroll">
+                <table class="table">
+                  <thead>
+                    <tr><th scope="col">Study Area</th><th scope="col">Units</th><th scope="col">Booked hours</th><th scope="col">Open unit-hours</th><th scope="col">Occupancy</th></tr>
+                  </thead>
+                  <tbody id="occBody"></tbody>
+                </table>
+              </div>
+              <p class="hint report-note">
+                Occupancy = booked unit-hours (pending, confirmed, completed) &divide; open unit-hours
+                from the current schedule and the units that are not removed.
+              </p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Peak Hours</h3></div>
+              <div class="card-body">
+                <div class="chart chart-wide" id="peakChart" role="img" aria-label="Booked hours by time of day"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Activity Log</h3>
+              <span class="right hint">Staff only &middot; latest 50 entries</span>
+            </div>
+            <div class="card-body">
+              <ul class="audit-list" id="auditList"><li class="loading">Loading activity...</li></ul>
+            </div>
+          </div>
+        </section>
 
         <p class="footnote">
           CPSOFT30L Software Design Laboratory &middot; NU Fairview LRC Booking System
@@ -151,9 +340,38 @@
     </main>
   </div>
 
+  <!-- ============ Reservation details dialog ============ -->
+  <div class="veil" id="detailVeil" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <h3 id="detailTitle">Reservation Details</h3>
+      <p class="dialog-sub" id="detailSub"></p>
+      <dl class="kv dialog-kv" id="detailKv"></dl>
+      <div class="field" id="noteField">
+        <label for="staffNote">Note to student <span class="hint-inline">(optional)</span></label>
+        <input class="input" type="text" id="staffNote" maxlength="200" placeholder="e.g. Please bring your ID">
+      </div>
+      <p class="err" id="detailErr" role="alert"></p>
+      <div class="dialog-foot" id="detailActions"></div>
+    </div>
+  </div>
+
+  <!-- ============ Unit removal dialog ============ -->
+  <div class="veil" id="removeVeil" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="removeTitle">
+      <h3 id="removeTitle">Remove unit</h3>
+      <p class="dialog-sub" id="removeSub"></p>
+      <ul class="remove-list" id="removeList"></ul>
+      <p class="err" id="removeErr" role="alert"></p>
+      <div class="dialog-foot">
+        <button type="button" class="btn btn-danger grow" id="removeConfirm">Remove unit</button>
+        <button type="button" class="btn btn-ghost" id="removeCancel">Keep unit</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
   <script src="../shared/nu-data.js"></script>
-  <script src="admin_dashboard.js"></script>
+  <script type="module" src="admin_dashboard.js"></script>
 </body>
 </html>
