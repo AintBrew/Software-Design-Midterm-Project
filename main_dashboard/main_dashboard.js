@@ -1,68 +1,90 @@
 /* ============================================================
    main_dashboard.js - Find a Study Area (student dashboard)
 
-   Front end only. Study areas and reservations come from
-   shared/nu-data.js.
+   Facilities, units, the LRC schedule, booked slots, and the
+   student's own reservations and notifications are all live
+   Firestore listeners from firebase/firebase-config.js.
    ============================================================ */
 
-(function () {
-  "use strict";
+import {
+  requireRole, signOutUser, describeError, LOCATION,
+  watchFacilities, watchResources, watchSchedule, watchSlotLocks,
+  watchMyReservations, watchMyNotifications, markNotificationsRead,
+  hoursOn, bookedSet, slotStates, millis, ACTIVE_STATUSES
+} from "../firebase/firebase-config.js";
 
-  var session = NU.requireLogin("student");
-  if (!session) return;                 // redirecting, stop here
+var loadErr = document.getElementById("loadErr");
 
+function showLoadError(err) {
+  loadErr.textContent = describeError(err);
+  loadErr.hidden = false;
+}
+
+var profile;
+try {
+  profile = await requireRole("student");
+} catch (err) {
+  showLoadError(err);
+}
+
+if (profile) start(profile);
+
+function start(session) {
   /* ---------- header ---------- */
 
   document.getElementById("userName").textContent = session.name;
   document.getElementById("userId").textContent   = "ID: " + session.studentNo;
-  NU.bindLogout();
-
-  // nav items whose pages are not built yet
-  var soon = document.querySelectorAll("[data-soon]");
-  for (var s = 0; s < soon.length; s++) {
-    soon[s].addEventListener("click", function (e) {
+  document.querySelectorAll("[data-logout]").forEach(function (link) {
+    link.addEventListener("click", async function (e) {
       e.preventDefault();
-      NU.toast("That page is part of the next batch.");
+      await signOutUser();
+      window.location.href = "../login/login.html";
     });
-  }
+  });
+  NU.bindSoon();
+
+  /* ---------- state from Firestore ---------- */
+
+  var facilities = null;
+  var resources = null;
+  var schedule;                 // undefined until loaded, null if missing
+  var locks = null;
+  var stopLocks = null;
 
   /* ---------- filter controls ---------- */
 
-  var dateInput = document.getElementById("date");
+  var dateInput  = document.getElementById("date");
   var slotSelect = document.getElementById("slot");
-  var capSelect = document.getElementById("capacity");
-  var grid = document.getElementById("areaGrid");
+  var capSelect  = document.getElementById("capacity");
+  var list       = document.getElementById("facilityList");
   var resultLine = document.getElementById("resultLine");
-  var noResults = document.getElementById("noResults");
+  var noResults  = document.getElementById("noResults");
 
-  var activeType = "All";
+  var activeType = "all";
 
-  dateInput.value = NU.todayISO();
+  // keep a date the student picked while the page was still signing in
+  if (!dateInput.value || dateInput.value < NU.todayISO()) dateInput.value = NU.todayISO();
   dateInput.min = NU.todayISO();
 
-  // fill the time slot dropdown from the shared slot list
-  NU.SLOTS.forEach(function (slot) {
-    var option = document.createElement("option");
-    option.value = slot;
-    option.textContent = NU.fmtRange(slot);
-    slotSelect.appendChild(option);
-  });
-
   var segButtons = document.querySelectorAll("#typeSeg button");
-  for (var b = 0; b < segButtons.length; b++) {
-    segButtons[b].addEventListener("click", function () {
-      for (var i = 0; i < segButtons.length; i++) {
-        segButtons[i].classList.remove("on");
-      }
-      this.classList.add("on");
-      activeType = this.getAttribute("data-type");
+  segButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      segButtons.forEach(function (b) {
+        b.classList.toggle("on", b === btn);
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      activeType = btn.getAttribute("data-type");
       render();
     });
-  }
+  });
 
   capSelect.addEventListener("change", render);
-  dateInput.addEventListener("change", render);
   slotSelect.addEventListener("change", render);
+  dateInput.addEventListener("change", function () {
+    if (!dateInput.value || dateInput.value < NU.todayISO()) dateInput.value = NU.todayISO();
+    fillSlots();
+    subscribeLocks();
+  });
 
   document.getElementById("searchBtn").addEventListener("click", function () {
     render();
@@ -70,134 +92,280 @@
   });
 
   document.getElementById("resetBtn").addEventListener("click", function () {
-    activeType = "All";
-    for (var i = 0; i < segButtons.length; i++) {
-      segButtons[i].classList.toggle("on", segButtons[i].getAttribute("data-type") === "All");
-    }
+    activeType = "all";
+    segButtons.forEach(function (b) {
+      var on = b.getAttribute("data-type") === "all";
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
     capSelect.value = "any";
-    slotSelect.value = "any";
     dateInput.value = NU.todayISO();
-    render();
+    fillSlots();
+    slotSelect.value = "any";
+    subscribeLocks();
   });
 
-  /* ---------- helpers ---------- */
+  // time slot choices follow the LRC hours for the chosen date
+  function fillSlots() {
+    var keep = slotSelect.value;
+    slotSelect.innerHTML = '<option value="any">Any time</option>';
+    var open = schedule ? hoursOn(schedule, dateInput.value) : null;
+    if (open) {
+      for (var h = open.openHour; h < open.closeHour; h++) {
+        var option = document.createElement("option");
+        option.value = String(h);
+        option.textContent = NU.fmtRange(h);
+        slotSelect.appendChild(option);
+      }
+    }
+    slotSelect.value = slotSelect.querySelector('option[value="' + keep + '"]') ? keep : "any";
+  }
 
-  function capacityMatches(area, band) {
-    if (band === "any")  return true;
-    if (band === "1-2")  return area.capacity <= 2;
-    if (band === "3-6")  return area.capacity >= 3 && area.capacity <= 6;
-    if (band === "7+")   return area.capacity >= 7;
+  function subscribeLocks() {
+    if (stopLocks) stopLocks();
+    locks = null;
+    render();
+    stopLocks = watchSlotLocks(dateInput.value, function (data) {
+      locks = data;
+      render();
+    }, showLoadError);
+  }
+
+  /* ---------- render the facilities and their units ---------- */
+
+  function capacityMatches(facility) {
+    var band = capSelect.value;
+    if (band === "1") return facility.capacityPerUnit === 1;
+    if (band === "group") return facility.capacityPerUnit >= 2;
     return true;
   }
 
-  // What the card should say for the chosen date and slot.
-  function availability(area, date, slot) {
-    if (slot === "any") {
-      if (area.status === "full")    return { cls: "avail-red",    text: "Fully Booked" };
-      if (area.status === "limited") return { cls: "avail-orange", text: "Limited Availability" };
-      return { cls: "avail-green", text: "Available" };
-    }
-    if (NU.isSlotBlocked(area.id, slot)) {
-      return { cls: "avail-red", text: "Unavailable at this time" };
-    }
-    if (NU.isSlotTaken(area.id, date, slot)) {
-      return { cls: "avail-red", text: "Reserved at this time" };
-    }
-    return { cls: "avail-green", text: "Available at this time" };
+  function hoursText(date) {
+    var open = hoursOn(schedule, date);
+    return open
+      ? "Open " + NU.fmtRange(open.openHour, open.closeHour) + " on " + NU.fmtDateShort(date)
+      : "LRC closed on " + NU.fmtDateShort(date);
   }
 
-  /* ---------- render the area cards ---------- */
+  // What one unit's chip says for the chosen date and slot.
+  function unitView(unit, date, slot, booked) {
+    var states = slotStates(unit, schedule, booked, date);
+    if (unit.status !== "active") {
+      return { cls: "off", text: "Unavailable", detail: unit.statusNote || "Maintenance / closure" };
+    }
+    if (!states.length) return { cls: "off", text: "Unavailable", detail: "LRC closed" };
+
+    if (slot !== "any") {
+      var match = states.filter(function (s) { return s.hour === Number(slot); })[0];
+      if (!match || match.state === "past") {
+        return { cls: "off", text: "Unavailable", detail: "Time has passed" };
+      }
+      if (match.state === "reserved") return { cls: "taken", text: "Reserved", detail: NU.fmtRange(match.hour) };
+      return { cls: "free", text: "Available", detail: NU.fmtRange(match.hour), bookable: true };
+    }
+
+    var free = states.filter(function (s) { return s.state === "free"; }).length;
+    var reserved = states.filter(function (s) { return s.state === "reserved"; }).length;
+    if (free) {
+      return { cls: "free", text: "Available", bookable: true,
+               detail: free + (free === 1 ? " open slot" : " open slots") };
+    }
+    if (reserved) return { cls: "taken", text: "Reserved", detail: "Fully booked" };
+    return { cls: "off", text: "Unavailable", detail: "No slots left today" };
+  }
 
   function render() {
+    if (!facilities || !resources || schedule === undefined) return;
+
     var date = dateInput.value || NU.todayISO();
     var slot = slotSelect.value;
 
-    var matches = NU.AREAS.filter(function (area) {
-      var typeOk = activeType === "All" || area.type === activeType;
-      return typeOk && capacityMatches(area, capSelect.value);
+    if (!facilities.length) {
+      list.innerHTML = "";
+      noResults.textContent = "The LRC study areas have not been set up yet. "
+        + "Please check back later or ask the LRC staff.";
+      noResults.hidden = false;
+      resultLine.textContent = "No study areas yet.";
+      return;
+    }
+
+    if (!locks) {
+      list.innerHTML = '<p class="loading">Loading live availability for '
+                     + NU.fmtDateShort(date) + '...</p>';
+      return;
+    }
+
+    var booked = bookedSet(locks);
+    var matches = facilities.filter(function (f) {
+      return (activeType === "all" || f.type === activeType) && capacityMatches(f);
     });
 
-    grid.innerHTML = "";
+    var html = "";
+    var unitCount = 0;
 
-    matches.forEach(function (area) {
-      var state = availability(area, date, slot);
-      var bookable = state.cls !== "avail-red";
+    matches.forEach(function (facility) {
+      var units = resources.filter(function (r) {
+        return r.facilityId === facility.id && r.status !== "removed";
+      });
+      unitCount += units.length;
 
-      var card = document.createElement("article");
-      card.className = "area-card";
-      card.innerHTML =
-        '<img class="area-photo" src="../images/' + area.image + '.svg" alt="">' +
-        '<div class="area-body">' +
-          '<div class="area-name">' + NU.escapeHtml(area.name) + '</div>' +
-          '<div class="area-meta">Capacity: <b>' + area.capacity +
-            (area.capacity === 1 ? ' seat' : ' seats') + '</b><br>' +
-            'Type: <b>' + NU.escapeHtml(area.type) + ' Study</b></div>' +
-          '<div class="area-status ' + state.cls + '">' + state.text + '</div>' +
-          '<div class="area-hours">' + NU.escapeHtml(area.hours) + '</div>' +
-          '<div class="area-foot">' +
-            (bookable
-              ? '<a class="btn btn-primary btn-sm" href="../booking/booking.html?area='
-                + encodeURIComponent(area.id) + '&date=' + encodeURIComponent(date)
-                + '">Book Now</a>'
-              : '<span class="btn btn-sm is-disabled">Unavailable</span>') +
+      var views = units.map(function (u) { return unitView(u, date, slot, booked); });
+      var freeCount = views.filter(function (v) { return v.bookable; }).length;
+      var summaryCls = freeCount === 0 ? "avail-red"
+                     : freeCount < units.length / 3 ? "avail-orange" : "avail-green";
+      var summary = units.length === 0 ? "No units listed"
+        : freeCount + " of " + units.length + " available"
+          + (slot === "any" ? "" : " at " + NU.fmtHour(Number(slot)));
+
+      var chips = units.map(function (u, i) {
+        var v = views[i];
+        var inner = '<b>' + NU.escapeHtml(u.label) + '</b>'
+                  + '<span class="u-state">' + v.text + '</span>'
+                  + '<span>' + NU.escapeHtml(v.detail || "") + '</span>';
+        if (!v.bookable) {
+          return '<div class="unit-chip ' + v.cls + '">' + inner + '</div>';
+        }
+        var href = "../booking/booking.html?resource=" + encodeURIComponent(u.id)
+                 + "&date=" + encodeURIComponent(date)
+                 + (slot === "any" ? "" : "&hour=" + encodeURIComponent(slot));
+        return '<a class="unit-chip free" href="' + href + '" aria-label="Book '
+             + NU.escapeHtml(u.label) + ', ' + v.text + ', ' + NU.escapeHtml(v.detail) + '">'
+             + inner + '</a>';
+      }).join("");
+
+      html +=
+        '<article class="facility-card">' +
+          '<div class="facility-top">' +
+            '<img class="area-photo" src="../images/' + NU.escapeHtml(facility.image || "room-group")
+              + '.svg" alt="">' +
+            '<div class="area-body">' +
+              '<h2 class="area-name">' + NU.escapeHtml(facility.name) +
+                (facility.alias ? ' <small>(' + NU.escapeHtml(facility.alias) + ')</small>' : '') +
+              '</h2>' +
+              '<div class="area-meta">' + NU.escapeHtml(facility.description || "") + '<br>' +
+                'Capacity: <b>' + NU.capacityText(facility.capacityPerUnit) + ' per '
+                  + (facility.type === "discussion" ? "room" : facility.type === "silent" ? "table" : "computer")
+                  + '</b><br>' +
+                'Location: <b>' + LOCATION + '</b> &middot; ' + NU.escapeHtml(hoursText(date)) +
+              '</div>' +
+              '<div class="area-status ' + summaryCls + '">' + summary + '</div>' +
+            '</div>' +
           '</div>' +
-        '</div>';
-      grid.appendChild(card);
+          '<div class="facility-units">' +
+            (units.length ? '<div class="unit-grid">' + chips + '</div>'
+                          : '<p class="res-empty">No units are listed in this area right now.</p>') +
+          '</div>' +
+        '</article>';
     });
 
+    list.innerHTML = html;
+    noResults.textContent = "No study areas match these filters. Try another area type or capacity.";
     noResults.hidden = matches.length > 0;
 
-    var label = matches.length === 1 ? "study area" : "study areas";
-    resultLine.textContent = "Showing " + matches.length + " " + label
-      + " for " + NU.fmtDateShort(date)
-      + (slot === "any" ? "." : " at " + NU.fmtRange(slot) + ".");
+    resultLine.textContent = "Showing " + matches.length
+      + (matches.length === 1 ? " study area" : " study areas")
+      + " (" + unitCount + (unitCount === 1 ? " unit" : " units") + ") for "
+      + NU.fmtDateShort(date)
+      + (slot === "any" ? "." : " at " + NU.fmtRange(Number(slot)) + ".");
   }
 
   /* ---------- upcoming reservations rail ---------- */
 
-  function renderUpcoming() {
+  function renderUpcoming(mine) {
     var box = document.getElementById("upcoming");
-    var today = NU.todayISO();
+    var now = Date.now();
 
-    var mine = NU.reservationsFor(session.studentNo)
-      .filter(function (r) {
-        return r.date >= today && r.status !== "Cancelled" && r.status !== "Completed";
-      })
-      .sort(function (a, b) {
-        return (a.date + a.slot).localeCompare(b.date + b.slot);
-      })
+    var upcoming = mine
+      .filter(function (r) { return ACTIVE_STATUSES.indexOf(r.status) !== -1 && millis(r.end) > now; })
+      .sort(function (a, b) { return millis(a.start) - millis(b.start); })
       .slice(0, 3);
 
-    if (!mine.length) {
+    if (!upcoming.length) {
       box.innerHTML = '<p class="res-empty">No upcoming reservations yet.<br>'
-                    + 'Pick a study area to book one.</p>';
+                    + 'Pick an available unit to book one.</p>';
       return;
     }
 
-    box.innerHTML = mine.map(function (r) {
-      var area = NU.getArea(r.areaId);
-      var when = r.date === today ? "Today, " + NU.fmtDateShort(r.date)
-                                  : NU.fmtDateShort(r.date);
-      var badge = r.status === "Confirmed" ? "badge-ok" : "badge-warn";
+    var today = NU.todayISO();
+    box.innerHTML = upcoming.map(function (r) {
+      var when = r.date === today ? "Today, " + NU.fmtDateShort(r.date) : NU.fmtDateShort(r.date);
       return '<div class="res-item">' +
                '<div class="res-top">' +
                  '<span class="res-when">' + when + '</span>' +
-                 '<span class="badge ' + badge + '">' + r.status + '</span>' +
+                 NU.statusBadge(r.status) +
                '</div>' +
-               '<div class="res-time">' + NU.fmtRange(r.slot) + '</div>' +
-               '<div class="res-area">' + NU.escapeHtml(area ? area.name : r.areaId) + '</div>' +
+               '<div class="res-time">' + NU.fmtRange(r.startHour, r.endHour) + '</div>' +
+               '<div class="res-area">' + NU.escapeHtml(r.resourceLabel) + ' &middot; '
+                 + NU.escapeHtml(r.facilityName) + '</div>' +
              '</div>';
     }).join("");
   }
 
+  /* ---------- notifications ---------- */
+
+  var unread = [];
+  var markBtn = document.getElementById("markReadBtn");
+  var unreadBadge = document.getElementById("unreadCount");
+
+  function renderNotifications(items) {
+    var box = document.getElementById("notifList");
+    unread = items.filter(function (n) { return !n.read; }).map(function (n) { return n.id; });
+
+    unreadBadge.hidden = !unread.length;
+    unreadBadge.textContent = unread.length + " new";
+    markBtn.hidden = !unread.length;
+
+    if (!items.length) {
+      box.innerHTML = '<p class="res-empty">No notifications yet. Updates about your '
+                    + 'reservations will appear here.</p>';
+      return;
+    }
+    box.innerHTML = items.slice(0, 6).map(function (n) {
+      return '<div class="notif' + (n.read ? "" : " unread") + '">'
+           + NU.escapeHtml(n.message)
+           + '<time>' + NU.fmtStamp(n.createdAt) + '</time></div>';
+    }).join("");
+  }
+
+  markBtn.addEventListener("click", async function () {
+    markBtn.disabled = true;
+    try {
+      await markNotificationsRead(unread);
+    } catch (err) {
+      NU.toast(describeError(err), "bad");
+    }
+    markBtn.disabled = false;
+  });
+
   /* ---------- go ---------- */
 
-  render();
-  renderUpcoming();
+  watchFacilities(function (data) { facilities = data; render(); }, showLoadError);
+  watchResources(function (data) { resources = data; render(); }, showLoadError);
+  watchSchedule(function (data) {
+    schedule = data;
+    fillSlots();
+    var open = hoursOn(schedule, NU.todayISO());
+    document.getElementById("hoursNote").textContent = schedule
+      ? "Today: " + (open ? NU.fmtRange(open.openHour, open.closeHour) : "LRC closed")
+      : "";
+    render();
+  }, showLoadError);
+  subscribeLocks();
 
-  // a booking made on the booking page announces itself here
+  watchMyReservations(session.uid, renderUpcoming, function (err) {
+    document.getElementById("upcoming").innerHTML =
+      '<p class="res-empty">' + NU.escapeHtml(describeError(err)) + '</p>';
+  });
+  watchMyNotifications(session.uid, renderNotifications, function (err) {
+    document.getElementById("notifList").innerHTML =
+      '<p class="res-empty">' + NU.escapeHtml(describeError(err)) + '</p>';
+  });
+
+  // keep "past" slots accurate while the page stays open
+  setInterval(render, 60 * 1000);
+
   var params = new URLSearchParams(window.location.search);
   if (params.get("booked") === "1") {
-    NU.toast("Reservation submitted. Check your upcoming reservations.", "good");
+    NU.toast("Reservation submitted. It is pending LRC staff approval.", "good");
   }
-})();
+}

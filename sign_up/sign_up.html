@@ -95,16 +95,17 @@
             <label for="email">NU Fairview e-mail</label>
             <input class="input" type="email" id="email" name="email"
                    placeholder="surnamefi@students.nu-fairview.edu.ph"
-                   autocomplete="email" autocapitalize="none" spellcheck="false">
+                   autocomplete="username" autocapitalize="none" spellcheck="false">
+            <p class="hint">You will sign in with this e-mail address.</p>
             <p class="err" id="emailErr"></p>
           </div>
 
           <div class="field">
-            <label for="username">Username</label>
+            <label for="username">Username <span class="optional">(optional)</span></label>
             <input class="input" type="text" id="username" name="username"
-                   placeholder="Choose a username" autocomplete="username"
+                   placeholder="Choose a display username" autocomplete="nickname"
                    autocapitalize="none" spellcheck="false">
-            <p class="hint">At least 4 characters. Letters, numbers, dots, and underscores.</p>
+            <p class="hint">Profile only - you sign in with your e-mail. At least 4 characters: letters, numbers, dots, and underscores.</p>
             <p class="err" id="usernameErr"></p>
           </div>
 
@@ -143,7 +144,7 @@
             <p class="err" id="agreeErr"></p>
           </div>
 
-          <p class="err form-err" id="formErr"></p>
+          <p class="err form-err" id="formErr" role="alert"></p>
 
           <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
             <span class="btn-label">Create Account</span>
@@ -169,7 +170,9 @@
       <h3>LRC Reservation Policies</h3>
       <ul class="policy-list">
         <li>Reservations are subject to LRC policies and staff approval where required.</li>
-        <li>Maximum of 3 hours of booked study area time per student per day.</li>
+        <li>Bookings use one-hour time slots, up to 2 hours per booking.</li>
+        <li>New reservations stay pending until LRC staff approve them.</li>
+        <li>Discussion rooms hold up to 8 people; list every attendee when booking.</li>
         <li>Students must observe the scheduled reservation period.</li>
         <li>Cancellation requires at least 1 hour notice through the booking system.</li>
         <li>Observe silence in individual study areas. No food or drinks inside the LRC.</li>
@@ -182,6 +185,6 @@
   <div id="toast"></div>
 
   <script src="../shared/nu-data.js"></script>
-  <script src="sign_up.js"></script>
+  <script type="module" src="sign_up.js"></script>
 </body>
 </html>

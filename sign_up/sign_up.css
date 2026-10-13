@@ -354,3 +354,6 @@
   .auth-card h2 { font-size: 22px; }
   .grid-2 { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* optional field marker */
+.optional { font-weight: 500; color: var(--ink-mute); }

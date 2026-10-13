@@ -12,77 +12,65 @@
   font-weight: 600;
 }
 
-/* ---------------- Study area cards ---------------- */
+/* filter labels wrap their caption so it names the control */
+.filters .f > label > span { font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
 
-.area-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+/* ---------------- Facility cards ---------------- */
+
+.facility-list {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.area-card {
+.facility-card {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--r);
   box-shadow: var(--shadow);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: box-shadow .18s, transform .18s, border-color .18s;
 }
-.area-card:hover {
-  border-color: #C3CEE4;
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
+
+.facility-top {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .area-photo {
   display: block;
   width: 100%;
-  height: 108px;
+  height: 100%;
+  min-height: 108px;
   object-fit: cover;
   background: var(--surface-alt);
-  border-bottom: 1px solid var(--line-soft);
 }
 
 .area-body {
-  padding: 12px 14px 14px;
+  padding: 12px 16px 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  flex: 1;
+  gap: 5px;
 }
 
 .area-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--nu-blue-dark);
   line-height: 1.3;
 }
+.area-name small { font-size: 12.5px; font-weight: 600; color: var(--ink-mute); }
 
 .area-meta {
   font-size: 12.5px;
   color: var(--ink-soft);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 .area-meta b { color: var(--ink); font-weight: 600; }
 
 .area-status { font-size: 12.5px; }
 
-.area-hours {
-  font-size: 12px;
-  color: var(--ink-mute);
-  padding-top: 2px;
-}
-
-.area-foot {
-  margin-top: auto;
-  padding-top: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
+.facility-units { padding: 14px 16px 16px; }
 
 /* ---------------- Side rail ---------------- */
 
@@ -151,5 +139,19 @@
   .filters .f { width: 100%; }
   .filters .seg { flex-wrap: wrap; }
   .filters .btn { flex: 1; }
-  .area-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+  .facility-top { grid-template-columns: 1fr; }
+  .area-photo { height: 96px; }
 }
+
+/* ---------------- Notifications ---------------- */
+
+.notif-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.notif {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  border-left: 3px solid var(--line);
+  padding: 4px 0 4px 10px;
+}
+.notif.unread { border-left-color: var(--nu-gold); color: var(--ink); }
+.notif time { display: block; font-size: 11px; color: var(--ink-mute); margin-top: 2px; }
+.hours-note { margin: 10px 0 0; font-size: 12px; color: var(--ink-mute); }

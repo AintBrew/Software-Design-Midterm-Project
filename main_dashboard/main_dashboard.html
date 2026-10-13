@@ -41,35 +41,36 @@
       <p>Explore available study spaces in the NU Fairview LRC and reserve your spot easily.</p>
     </div>
 
+    <div class="banner banner-bad" id="loadErr" role="alert" hidden></div>
+
     <!-- ============ Filters ============ -->
     <section class="filters" aria-label="Filter study areas">
       <div class="f">
-        <span>Area Type</span>
-        <div class="seg" id="typeSeg">
-          <button type="button" class="on" data-type="All">All Types</button>
-          <button type="button" data-type="Individual">Individual</button>
-          <button type="button" data-type="Group">Group</button>
-          <button type="button" data-type="Collaborative">Collaborative</button>
+        <span id="typeLabel">Area Type</span>
+        <div class="seg" id="typeSeg" role="group" aria-labelledby="typeLabel">
+          <button type="button" class="on" data-type="all" aria-pressed="true">All Types</button>
+          <button type="button" data-type="discussion" aria-pressed="false">Discussion Rooms</button>
+          <button type="button" data-type="silent" aria-pressed="false">Silent Area</button>
+          <button type="button" data-type="computer" aria-pressed="false">Electronic Library</button>
         </div>
       </div>
 
       <div class="f">
-        <span>Capacity</span>
+        <label for="capacity"><span>Capacity</span></label>
         <select class="input" id="capacity">
           <option value="any">Any size</option>
-          <option value="1-2">1 - 2</option>
-          <option value="3-6">3 - 6</option>
-          <option value="7+">7 or more</option>
+          <option value="1">1 person</option>
+          <option value="group">Group (2 - 8 people)</option>
         </select>
       </div>
 
       <div class="f">
-        <span>Date</span>
+        <label for="date"><span>Date</span></label>
         <input class="input" type="date" id="date">
       </div>
 
       <div class="f">
-        <span>Time Slot</span>
+        <label for="slot"><span>Time Slot</span></label>
         <select class="input" id="slot">
           <option value="any">Any time</option>
         </select>
@@ -82,29 +83,44 @@
     <!-- ============ Results + side rail ============ -->
     <div class="split dash-split">
 
-      <section>
-        <p class="result-line" id="resultLine">Showing all study areas.</p>
-        <div class="area-grid" id="areaGrid"></div>
-        <p class="no-results" id="noResults" hidden>
-          No study areas match these filters. Try widening the capacity or clearing the time slot.
-        </p>
+      <section aria-live="polite">
+        <p class="result-line" id="resultLine">Loading study areas...</p>
+        <div class="facility-list" id="facilityList">
+          <p class="loading">Loading live availability...</p>
+        </div>
+        <p class="no-results" id="noResults" hidden></p>
       </section>
 
       <aside class="stack">
         <div class="card">
           <div class="card-head"><h3>Upcoming Reservations</h3></div>
-          <div class="card-body" id="upcoming"></div>
+          <div class="card-body" id="upcoming"><p class="loading">Loading...</p></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Notifications</h3>
+            <span class="right badge badge-warn" id="unreadCount" hidden>0 new</span>
+          </div>
+          <div class="card-body">
+            <div id="notifList" class="notif-list"><p class="loading">Loading...</p></div>
+            <button type="button" class="btn btn-ghost btn-sm btn-block" id="markReadBtn" hidden>
+              Mark all as read
+            </button>
+          </div>
         </div>
 
         <div class="card">
           <div class="card-head"><h3>LRC Policies</h3></div>
           <div class="card-body">
-            <ul class="policy-mini">
+            <ul class="policy-mini" id="policyList">
               <li>Reservations are required for all study areas.</li>
-              <li>Maximum of 3 hours per student per day.</li>
+              <li>One-hour slots, up to 2 hours per booking.</li>
               <li>Cancellation needs 1 hour notice.</li>
+              <li>Discussion rooms: up to 8 people, all attendees listed.</li>
               <li>Observe silence. No food or drinks.</li>
             </ul>
+            <p class="hours-note" id="hoursNote"></p>
           </div>
         </div>
       </aside>
@@ -119,6 +135,6 @@
   <div id="toast"></div>
 
   <script src="../shared/nu-data.js"></script>
-  <script src="main_dashboard.js"></script>
+  <script type="module" src="main_dashboard.js"></script>
 </body>
 </html>
