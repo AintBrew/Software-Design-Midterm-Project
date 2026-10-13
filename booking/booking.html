@@ -45,21 +45,34 @@
   </div>
 
   <div class="page-wrap">
+    <div class="banner banner-bad" id="loadErr" role="alert" hidden></div>
+
     <div class="book-split">
 
       <!-- ============ Left column ============ -->
       <div class="stack">
 
-        <!-- chosen study area -->
+        <!-- chosen study area and unit -->
         <div class="card">
           <div class="card-body area-pick">
-            <img class="pick-photo" id="pickPhoto" src="../images/room-pod.svg" alt="">
+            <img class="pick-photo" id="pickPhoto" src="../images/room-discussion.svg" alt="">
             <div class="pick-info">
-              <h2 id="pickName">Study Area</h2>
+              <h2 id="pickName">Loading...</h2>
+              <p id="pickFacility">Study area: -</p>
               <p id="pickCapacity">Capacity: -</p>
               <p id="pickLocation">Location: NU Fairview LRC</p>
             </div>
             <a class="btn btn-primary btn-sm" href="../main_dashboard/main_dashboard.html">Change Area</a>
+          </div>
+          <div class="card-foot unit-pick">
+            <div class="field">
+              <label for="facilitySelect">Study area</label>
+              <select class="input" id="facilitySelect" disabled></select>
+            </div>
+            <div class="field">
+              <label for="unitSelect">Unit</label>
+              <select class="input" id="unitSelect" disabled></select>
+            </div>
           </div>
         </div>
 
@@ -69,17 +82,18 @@
             <button type="button" class="cal-nav" id="prevMonth" aria-label="Previous month">
               &lsaquo; Previous
             </button>
-            <h3 id="calTitle">Month Year</h3>
+            <h3 id="calTitle" aria-live="polite">Month Year</h3>
             <button type="button" class="cal-nav" id="nextMonth" aria-label="Next month">
               Next &rsaquo;
             </button>
           </div>
           <div class="card-body">
-            <div class="cal-grid cal-dow">
+            <div class="cal-grid cal-dow" aria-hidden="true">
               <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
               <span>Thu</span><span>Fri</span><span>Sat</span>
             </div>
             <div class="cal-grid" id="calDays"></div>
+            <p class="hint" id="calHint">Days the LRC is closed cannot be selected.</p>
           </div>
         </div>
 
@@ -90,8 +104,11 @@
             <ul class="rules">
               <li>Max Duration: 2 hours per booking</li>
               <li>Cancellation: 1 hour notice required</li>
-              <li>Bookings are for one time slot at a time</li>
+              <li>Bookings use one-hour slots; a 2-hour booking takes two consecutive slots</li>
+              <li>Discussion rooms: up to 8 people, including you</li>
+              <li>New reservations are pending until LRC staff approve them</li>
             </ul>
+            <p class="hint" id="hoursLine"></p>
           </div>
         </div>
 
@@ -100,9 +117,11 @@
       <!-- ============ Right column ============ -->
       <div class="stack">
 
-        <section>
+        <section aria-labelledby="slotsTitle">
           <h2 class="slots-title" id="slotsTitle">Available Time Slots</h2>
-          <div class="slot-list" id="slotList"></div>
+          <div class="slot-list" id="slotList" aria-live="polite">
+            <p class="loading">Loading live availability...</p>
+          </div>
 
           <div class="legend">
             <span><i style="background:#fff;border-color:var(--nu-blue)"></i>Available</span>
@@ -118,12 +137,20 @@
           <div class="card-body">
             <dl class="kv">
               <dt>Study Area</dt><dd id="sumArea">-</dd>
+              <dt>Unit</dt><dd id="sumUnit">-</dd>
               <dt>Date</dt><dd id="sumDate">-</dd>
               <dt>Time</dt><dd id="sumTime">Select a time slot</dd>
-              <dt>Duration</dt><dd id="sumDuration">1 Hour</dd>
             </dl>
 
             <div class="field purpose-field">
+              <label for="duration">Duration</label>
+              <select class="input" id="duration">
+                <option value="1">1 Hour</option>
+                <option value="2">2 Hours</option>
+              </select>
+            </div>
+
+            <div class="field">
               <label for="purpose">Purpose</label>
               <select class="input" id="purpose">
                 <option>Group Project</option>
@@ -133,9 +160,24 @@
                 <option>Thesis Writing</option>
               </select>
             </div>
+
+            <!-- discussion rooms only: everyone joining besides the booking student -->
+            <fieldset class="group-box" id="groupSection" hidden>
+              <legend>Attendees</legend>
+              <p class="hint group-hint">
+                List everyone joining you. You are counted automatically, so add up to
+                <b id="maxAttendees">7</b> other people.
+              </p>
+              <div id="attendeeList" class="attendee-list"></div>
+              <button type="button" class="btn btn-ghost btn-sm" id="addAttendee">+ Add attendee</button>
+              <p class="group-size" id="groupSize" aria-live="polite">Group size: 1 (just you)</p>
+              <p class="err" id="attendeeErr" role="alert"></p>
+            </fieldset>
+
+            <p class="err" id="slotErr" role="alert"></p>
           </div>
           <div class="card-foot summary-foot">
-            <button type="button" class="btn btn-navy btn-block is-disabled" id="confirmBtn">
+            <button type="button" class="btn btn-navy btn-block is-disabled" id="confirmBtn" aria-disabled="true">
               Continue to Confirmation
             </button>
             <a class="btn btn-ghost btn-block" href="../main_dashboard/main_dashboard.html">Back</a>
@@ -153,16 +195,21 @@
 
   <!-- ============ Confirmation dialog ============ -->
   <div class="veil" id="confirmVeil" hidden>
-    <div class="dialog">
-      <h3>Confirm Your Reservation</h3>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+      <h3 id="dlgTitle">Confirm Your Reservation</h3>
       <p class="dialog-sub">Review the details before submitting.</p>
 
       <dl class="kv dialog-kv">
-        <dt>Study Area</dt><dd id="dlgArea">-</dd>
+        <dt>Study Area</dt><dd id="dlgFacility">-</dd>
+        <dt>Unit</dt><dd id="dlgArea">-</dd>
         <dt>Location</dt><dd id="dlgLocation">-</dd>
+        <dt>Capacity</dt><dd id="dlgCapacity">-</dd>
         <dt>Date</dt><dd id="dlgDate">-</dd>
         <dt>Time</dt><dd id="dlgTime">-</dd>
+        <dt>Duration</dt><dd id="dlgDuration">-</dd>
         <dt>Purpose</dt><dd id="dlgPurpose">-</dd>
+        <dt>Group Size</dt><dd id="dlgGroup">-</dd>
+        <dt id="dlgAttendeesLabel">Attendees</dt><dd id="dlgAttendees">-</dd>
         <dt>Status</dt><dd><span class="badge badge-warn">Pending Confirmation</span></dd>
       </dl>
 
@@ -170,7 +217,7 @@
         <input type="checkbox" id="agree">
         <span>I have reviewed the reservation details and agree to the applicable LRC policies.</span>
       </label>
-      <p class="err" id="agreeErr"></p>
+      <p class="err" id="agreeErr" role="alert"></p>
 
       <div class="dialog-foot">
         <button type="button" class="btn btn-navy grow" id="submitBtn">Confirm Reservation</button>
@@ -182,6 +229,6 @@
   <div id="toast"></div>
 
   <script src="../shared/nu-data.js"></script>
-  <script src="booking.js"></script>
+  <script type="module" src="booking.js"></script>
 </body>
 </html>
